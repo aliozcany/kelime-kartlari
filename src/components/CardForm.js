@@ -4,6 +4,15 @@ import { C } from '../theme';
 
 const PLACEHOLDER = '#A8ACB2';
 
+// Kelime türleri (isteğe bağlı, birden fazla seçilebilir)
+export const WORD_TYPES = [
+  { key: 'noun', label: 'noun' },
+  { key: 'verb', label: 'verb' },
+  { key: 'adj', label: 'adj' },
+  { key: 'adv', label: 'adv' },
+  { key: 'phrase', label: 'phrase' },
+];
+
 // Aynı İngilizce kelime (büyük/küçük harf ve boşluk farkı gözetmeden) başka bir kartta var mı
 export function findDuplicate(cards, en, exceptId) {
   const k = en.trim().toLowerCase();
@@ -21,6 +30,9 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
   const [example, setExample] = useState(initial?.example || '');
   const [reference, setReference] = useState(initial?.reference || '');
   const [topic, setTopic] = useState(initial?.topic || null);
+  const [types, setTypes] = useState(initial?.types || []);
+  const [synonyms, setSynonyms] = useState(initial?.synonyms || '');
+  const [antonyms, setAntonyms] = useState(initial?.antonyms || '');
   const [addingTopic, setAddingTopic] = useState(false);
   const [newTopic, setNewTopic] = useState('');
   const [msg, setMsg] = useState('');
@@ -35,15 +47,29 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
 
   const submit = () => {
     if (!canSave) return;
-    onSubmit({ en: en.trim(), tr: tr.trim(), example: example.trim(), reference: reference.trim(), topic });
+    onSubmit({
+      en: en.trim(),
+      tr: tr.trim(),
+      example: example.trim(),
+      reference: reference.trim(),
+      topic,
+      types,
+      synonyms: synonyms.trim(),
+      antonyms: antonyms.trim(),
+    });
     if (!isEdit) {
       setMsg(`“${en.trim()}” eklendi`);
       setEn('');
       setTr('');
       setExample('');
+      setTypes([]);
+      setSynonyms('');
+      setAntonyms('');
       enRef.current?.focus();
     }
   };
+
+  const toggleType = (k) => setTypes((ts) => (ts.includes(k) ? ts.filter((t) => t !== k) : [...ts, k]));
 
   const commitTopic = () => {
     const name = newTopic.trim();
@@ -105,6 +131,18 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
         onSubmitEditing={() => exRef.current?.focus()}
       />
 
+      <Text style={styles.label}>Tür <Text style={styles.optional}>(isteğe bağlı)</Text></Text>
+      <View style={styles.chips}>
+        {WORD_TYPES.map((t) => {
+          const active = types.includes(t.key);
+          return (
+            <Pressable key={t.key} onPress={() => toggleType(t.key)} style={[styles.chip, active && styles.chipActive]}>
+              <Text style={[styles.chipText, active && styles.chipTextActive]}>{t.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
       <Text style={styles.label}>Örnek cümle <Text style={styles.optional}>(ipucu olarak gösterilir)</Text></Text>
       <TextInput
         ref={exRef}
@@ -114,6 +152,26 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
         placeholder="ör. She was reluctant to leave the party."
         placeholderTextColor={PLACEHOLDER}
         multiline
+      />
+
+      <Text style={styles.label}>Eş anlamlılar <Text style={styles.optional}>(isteğe bağlı)</Text></Text>
+      <TextInput
+        style={styles.input}
+        value={synonyms}
+        onChangeText={setSynonyms}
+        placeholder="ör. unwilling, hesitant"
+        placeholderTextColor={PLACEHOLDER}
+        autoCapitalize="none"
+      />
+
+      <Text style={styles.label}>Zıt anlamlılar <Text style={styles.optional}>(isteğe bağlı)</Text></Text>
+      <TextInput
+        style={styles.input}
+        value={antonyms}
+        onChangeText={setAntonyms}
+        placeholder="ör. eager, willing"
+        placeholderTextColor={PLACEHOLDER}
+        autoCapitalize="none"
       />
 
       <Text style={styles.label}>Nerede gördün <Text style={styles.optional}>(isteğe bağlı)</Text></Text>

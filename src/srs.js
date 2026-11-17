@@ -24,3 +24,19 @@ export function markUnknown(card, today = todayStr()) {
     reviews: [...(card.reviews || []), { date: today, ok: false }],
   };
 }
+
+// Kelimenin toplam kaç kez bilinemediği (günlük tekrarlar + Haznem testleri)
+export function missCount(card) {
+  const miss = (list) => (list || []).filter((r) => !r.ok).length;
+  return miss(card.reviews) + miss(card.tests);
+}
+
+// Haznem testi tekrar planını değiştirmez, sadece sonucu kaydeder
+export function recordTest(card, ok, today = todayStr()) {
+  return { ...card, tests: [...(card.tests || []), { date: today, ok }] };
+}
+
+// Kartı tekrar planına baştan sokar (Haznem testinde bilinemeyenler için, isteğe bağlı)
+export function restartPlan(card, today = todayStr()) {
+  return { ...card, stage: 0, anchor: today };
+}

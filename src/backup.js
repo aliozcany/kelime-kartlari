@@ -1,9 +1,10 @@
-// Yedek, düz JSON metni olarak paylaşılır ve geri yüklenirken yapıştırılır.
+// Yedek bir JSON dosyası olarak kaydedilir; geri yüklerken dosya seçilir (ya da metin yapıştırılır).
+// version 2: kartlarda types, synonyms, antonyms, tests alanları da olabilir (hepsi isteğe bağlı).
 
 export function makeBackup(cards, topics) {
   return JSON.stringify({
     app: 'kelime-kartlari',
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     topics,
     cards,

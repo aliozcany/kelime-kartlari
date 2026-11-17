@@ -74,3 +74,6 @@ export function formatMonth(key) {
   const [y, m] = key.split('-').map(Number);
   return `${AYLAR[m - 1]} ${y}`;
 }
+
+// Tüm tekrarları bitmiş kart: günlük çalışmaya bir daha gelmez, Kelime Haznem'de durur
+export const isMastered = (card) => card.stage >= INTERVALS.length;

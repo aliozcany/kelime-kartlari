@@ -9,12 +9,14 @@ import { isDue, todayStr } from './src/dates';
 import StudyScreen from './src/screens/StudyScreen';
 import AddScreen from './src/screens/AddScreen';
 import ListScreen from './src/screens/ListScreen';
+import VaultScreen from './src/screens/VaultScreen';
 import BackupSheet from './src/components/BackupSheet';
 
 const TABS = [
   { key: 'study', label: 'Çalış', icon: '📖' },
   { key: 'add', label: 'Ekle', icon: '➕' },
   { key: 'list', label: 'Kelimelerim', icon: '🗂️' },
+  { key: 'vault', label: 'Haznem', icon: '🏆' },
 ];
 
 export default function App() {
@@ -99,9 +101,10 @@ export default function App() {
         </View>
 
         <View style={{ flex: 1 }}>
-          {tab === 'study' && <StudyScreen cards={cards} onUpdate={updateCard} />}
+          {tab === 'study' && <StudyScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
           {tab === 'add' && <AddScreen cards={cards} onAdd={addCard} todayCount={todayCount} {...topicProps} />}
           {tab === 'list' && <ListScreen cards={cards} onUpdate={updateCard} onDelete={deleteCard} {...topicProps} />}
+          {tab === 'vault' && <VaultScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
         </View>
 
         <BackupSheet

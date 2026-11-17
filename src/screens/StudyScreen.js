@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { C } from '../theme';
-import { isDue, todayStr, STAGE_LABELS, formatDay } from '../dates';
+import { isDue, todayStr, STAGE_LABELS } from '../dates';
 import { markKnown, markUnknown } from '../srs';
+import FlipCard from '../components/FlipCard';
+import EditCardSheet from '../components/EditCardSheet';
 
-export default function StudyScreen({ cards, onUpdate }) {
+export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRemoveTopic }) {
   const today = todayStr();
   const dueIds = useMemo(() => cards.filter((c) => isDue(c, today)).map((c) => c.id), [cards, today]);
 
@@ -17,6 +19,7 @@ export default function StudyScreen({ cards, onUpdate }) {
   );
   const [flipped, setFlipped] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [editing, setEditing] = useState(false);
   const anim = useRef(new Animated.Value(0)).current;
 
   // Yeni kart eklendiğinde ya da gün değiştiğinde kuyruğu tazele (oturum ortasında değilse)
@@ -57,33 +60,21 @@ export default function StudyScreen({ cards, onUpdate }) {
     );
   }
 
-  const frontRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
-  const backRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
-
   return (
     <View style={styles.wrap}>
       <View style={styles.topRow}>
         <Text style={styles.counter}>Kalan: {queue.length}</Text>
-        <Text style={styles.badge}>{STAGE_LABELS[card.stage]} tekrarı</Text>
+        <View style={styles.topRight}>
+          {flipped ? (
+            <Pressable onPress={() => setEditing(true)} hitSlop={8} style={styles.editBtn}>
+              <Text style={styles.editText}>✏️ Düzenle</Text>
+            </Pressable>
+          ) : null}
+          <Text style={styles.badge}>{STAGE_LABELS[card.stage]} tekrarı</Text>
+        </View>
       </View>
 
-      <Pressable onPress={flip} style={styles.cardArea}>
-        <Animated.View style={[styles.card, { transform: [{ perspective: 1000 }, { rotateY: frontRot }] }]}>
-          <Text style={styles.lang}>İNGİLİZCE</Text>
-          <Text style={styles.word}>{card.en}</Text>
-          <Text style={styles.tapHint}>Çevirmek için dokun</Text>
-        </Animated.View>
-        <Animated.View
-          style={[styles.card, styles.cardBack, { transform: [{ perspective: 1000 }, { rotateY: backRot }] }]}
-        >
-          <Text style={[styles.lang, { color: C.accent }]}>TÜRKÇE</Text>
-          <Text style={styles.word}>{card.tr}</Text>
-          {card.example ? <Text style={styles.exampleBack}>“{card.example}”</Text> : null}
-          {card.reference ? <Text style={styles.reference}>📍 {card.reference}</Text> : null}
-          {card.topic ? <Text style={styles.tag}>{card.topic}</Text> : null}
-          <Text style={styles.added}>Eklendi: {formatDay(card.createdAt)}</Text>
-        </Animated.View>
-      </Pressable>
+      <FlipCard card={card} anim={anim} onPress={flip} />
 
       {!flipped && (
         <View style={styles.hintArea}>
@@ -111,6 +102,16 @@ export default function StudyScreen({ cards, onUpdate }) {
       ) : (
         <View style={styles.answerRow} />
       )}
+
+      <EditCardSheet
+        card={editing ? card : null}
+        onClose={() => setEditing(false)}
+        onSave={onUpdate}
+        cards={cards}
+        topics={topics}
+        onAddTopic={onAddTopic}
+        onRemoveTopic={onRemoveTopic}
+      />
     </View>
   );
 }
@@ -120,23 +121,9 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   counter: { color: C.muted, fontSize: 15 },
   badge: { color: C.accent, backgroundColor: C.accentSoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, fontSize: 13, overflow: 'hidden' },
-  cardArea: { flex: 1, maxHeight: 380 },
-  card: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: C.surface, borderRadius: 20, padding: 24,
-    alignItems: 'center', justifyContent: 'center',
-    backfaceVisibility: 'hidden',
-    borderWidth: 1, borderColor: C.line,
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3,
-  },
-  cardBack: { backgroundColor: '#FBFDFC' },
-  lang: { position: 'absolute', top: 20, fontSize: 12, letterSpacing: 1.5, color: C.muted, fontWeight: '600' },
-  word: { fontSize: 36, fontWeight: '700', color: C.ink, textAlign: 'center' },
-  tapHint: { position: 'absolute', bottom: 20, color: C.muted, fontSize: 13 },
-  exampleBack: { marginTop: 18, fontSize: 16, color: C.muted, textAlign: 'center', fontStyle: 'italic' },
-  reference: { marginTop: 12, fontSize: 14, color: C.muted, textAlign: 'center' },
-  tag: { marginTop: 10, color: C.accent, backgroundColor: C.accentSoft, fontSize: 12, fontWeight: '600', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10, overflow: 'hidden' },
-  added: { position: 'absolute', bottom: 20, color: C.muted, fontSize: 12 },
+  topRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  editBtn: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.line, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
+  editText: { fontSize: 13, fontWeight: '600', color: C.ink },
   hintArea: { minHeight: 70, justifyContent: 'center', marginTop: 16 },
   hintBtn: { alignSelf: 'center', backgroundColor: C.hintSoft, paddingHorizontal: 22, paddingVertical: 12, borderRadius: 24 },
   hintBtnText: { color: C.hint, fontSize: 16, fontWeight: '600' },
