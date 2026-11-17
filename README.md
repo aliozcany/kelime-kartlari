@@ -1,12 +1,66 @@
-# Kelime Kartları
+# 🃏 Kelime Kartları
 
-Kendi eklediğin İngilizce–Türkçe kelimeleri 1. gün, 3. gün, 1. hafta, 2. hafta ve 1. ayda tekrar ettiren basit bir React Native (Expo) uygulaması.
+**Kendi kelimelerini ekle, unutmadan önce tekrar et.**
 
-## Kurulum
+Dizide, kitapta, haberde karşına çıkan İngilizce kelimeleri kaydettiğin ve *aralıklı tekrar* (spaced repetition) yöntemiyle 1. gün, 3. gün, 1. hafta, 2. hafta ve 1. ayda yeniden sorduğu sade bir mobil uygulama. Hesap yok, sunucu yok, reklam yok: her şey telefonunda kalır.
+
+![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=white)
+![Expo](https://img.shields.io/badge/Expo-SDK_57-000020?logo=expo&logoColor=white)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-3DDC84)
+![Dil](https://img.shields.io/badge/aray%C3%BCz-T%C3%BCrk%C3%A7e-E30A17)
+
+---
+
+## ✨ Özellikler
+
+| | |
+|---|---|
+| 📖 **Günlük çalışma** | Tarihi gelen kartlar çevirme animasyonlu kartlarla sorulur. Takılırsan 💡 ipucu örnek cümleyi gösterir. |
+| 🔁 **Aralıklı tekrar** | Bildiğin kelime bir sonraki aşamaya geçer, bilemediğin baştan başlar. Kaçırılan günler birikmez. |
+| 🏆 **Kelime Haznem** | 5/5 tekrarı biten kelimeler günlük çalışmadan çıkar, haznene geçer. İstediğin zaman hepsiyle karışık bir test yapabilirsin. |
+| 📅 **Takvim** | Her günün altında o gün kaç kelime eklediğin yazar (+4, +7…). Güne dokununca o günün kelimeleri açılır. |
+| ✗ **Zorlandıkların** | Her kelimenin kaç kez bilinemediği sayılır. Hangi kelimelerde zorlandığın bir bakışta görünür. |
+| 🏷️ **Zengin kartlar** | Tür (noun, verb, adj, adv, phrase), örnek cümle, eş ve zıt anlamlılar, nerede gördüğün ve konu. Hepsi isteğe bağlı. |
+| 🔍 **Arama** | İngilizce, Türkçe, örnek cümle ve eş/zıt anlamlılarda arar. Büyük/küçük harf ve ı/i, ö/o farkına takılmaz. |
+| ✏️ **Her yerden düzenleme** | Çalışırken kartın arkasından ya da listeden düzenleyebilirsin. Düzenlemek tekrar planını bozmaz. |
+| 💾 **Dosya ile yedek** | Tüm veriler tek bir `.json` dosyasına kaydedilir: Drive'a, Dosyalar'a, WhatsApp'a gönder. Yeni telefonda dosyayı seçip geri yükle. |
+| ⚠️ **Tekrar uyarısı** | Aynı kelimeyi ikinci kez eklemeye çalışırsan uyarır. Farklı bir anlamı içinse yine de ekleyebilirsin. |
+
+## 🔁 Tekrar nasıl çalışıyor?
+
+```mermaid
+flowchart LR
+    A([Kelime eklendi]) --> S1[1. gün]
+    S1 -->|Bildim| S2[3. gün]
+    S2 -->|Bildim| S3[1. hafta]
+    S3 -->|Bildim| S4[2. hafta]
+    S4 -->|Bildim| S5[1. ay]
+    S5 -->|Bildim| H([🏆 Haznem])
+    S1 & S2 & S3 & S4 & S5 -.->|Bilemedim| R[Plan bugünden<br/>baştan başlar]
+    R -.-> S1
+```
+
+- Kelime eklendiği gün sorulmaz, ertesi gün **Çalış** ekranına düşer.
+- **Bildim:** Bir sonraki aşamaya geçer. **Bilemedim:** Plan o günden baştan başlar. Aynı gün tekrar sorulmaz.
+- Birkaç gün giremezsen kartlar kaybolmaz, "Gecikti" olarak bekler. Tarihi çoktan geçmiş aşamalar atlanır, böylece aynı kelime aynı gün iki kez gelmez.
+- **Haznem testi** tekrar planını değiştirmez, sadece sonucu kaydeder. Test bitince bilemediklerini istersen tek dokunuşla tekrar plana alabilirsin.
+- Aralıkları değiştirmek için [`src/dates.js`](src/dates.js) içindeki `INTERVALS` ve `STAGE_LABELS` dizilerini düzenlemen yeterli.
+
+## 🚀 Kurulum
 
 ```bash
+git clone https://github.com/aliozcany/kelime-kartlari.git
+cd kelime-kartlari
 npm install
 ```
+
+### Geliştirirken denemek
+
+```bash
+npx expo start
+```
+
+Telefondaki **Expo Go** uygulamasıyla QR kodu okut (bilgisayar ve telefon aynı Wi-Fi'de olmalı).
 
 ### Telefona APK olarak kurmak (Android)
 
@@ -15,61 +69,64 @@ npx eas-cli login
 npx eas-cli build -p android --profile apk
 ```
 
-Derleme Expo'nun sunucusunda yapılır. Bitince verilen linki telefondan açıp APK'yı indir ve kur. Kodu değiştirince ikinci komutu tekrar çalıştırıp yeni APK'yı üstüne kur; kartlar silinmez.
+Derleme Expo'nun sunucularında yapılır. Bitince verilen linki telefondan açıp APK'yı kur. Yeni sürümü eskisinin üstüne kurarsan kelimelerin silinmez.
 
-### Geliştirirken denemek
+> **Windows'ta** PowerShell `npx` için "running scripts is disabled" hatası verirse, `npx` yerine `npx.cmd` yaz.
 
-```bash
-npx expo start
+## 🗂️ Proje yapısı
+
+```
+App.js                     Alt sekmeler, veri yükleme/kaydetme, Yedek düğmesi
+src/
+├── screens/
+│   ├── StudyScreen.js     Günlük çalışma: kart çevirme, ipucu, Bildim / Bilemedim
+│   ├── AddScreen.js       Yeni kelime ekleme
+│   ├── ListScreen.js      Arama; gün / hafta / ay listesi ve takvim; düzenle, sil
+│   └── VaultScreen.js     Kelime Haznem ve karışık test
+├── components/
+│   ├── FlipCard.js        Çevrilebilir kart (Çalış ve Haznem ortak)
+│   ├── CardForm.js        Ekleme / düzenleme formu
+│   ├── EditCardSheet.js   Düzenleme penceresi
+│   ├── CalendarView.js    Ay takvimi (+N gösterimi)
+│   ├── BackupSheet.js     Dosyaya yedekle / dosyadan geri yükle
+│   └── Sheet.js           Alttan açılan pencere
+├── srs.js                 Tekrar mantığı (bildim, bilemedim, test, hata sayısı)
+├── dates.js               Tarih yardımcıları ve tekrar aralıkları
+├── backup.js              Yedek oluşturma ve doğrulama
+├── storage.js             Telefonda kalıcı kayıt (AsyncStorage)
+└── theme.js               Renkler
 ```
 
-Telefondaki **Expo Go** ile QR kodu okut (bilgisayar açık ve aynı Wi-Fi'de olmalı).
+## 🧩 Veri yapısı
 
-## Dosyalar
+Her kart telefonda (AsyncStorage) şu şekilde saklanır. Yedek dosyası da aynı yapıdadır:
 
-| Dosya | Ne yapar |
-|---|---|
-| `App.js` | Alt sekmeler (Çalış / Ekle / Kelimelerim / Haznem), Yedek düğmesi; kartları ve konuları yükler, kaydeder |
-| `src/screens/StudyScreen.js` | Bugünün kartları, çevirme animasyonu, ipucu, Bildim/Bilemedim |
-| `src/screens/AddScreen.js` | Yeni kart ekleme ekranı |
-| `src/screens/ListScreen.js` | Arama; kelimeleri güne / haftaya / aya göre gruplu liste ya da takvim; düzenleme ve silme |
-| `src/screens/VaultScreen.js` | Kelime Haznem: 5/5 tamamlanan kelimeler ve karıştırılmış test |
-| `src/components/FlipCard.js` | Çevrilebilir kart (Çalış ve Haznem testi ortak kullanır) |
-| `src/components/EditCardSheet.js` | Kart düzenleme penceresi |
-| `src/components/CalendarView.js` | Ay takvimi, her günde eklenen kelime sayısı (+N) |
-| `src/components/CardForm.js` | Ekleme ve düzenlemede ortak form: tekrar eden kelime uyarısı, referans, konu seçimi |
-| `src/components/BackupSheet.js` | Yedeği .json dosyası olarak kaydetme ve dosyadan geri yükleme |
-| `src/components/Sheet.js` | Alttan açılan pencere |
-| `src/backup.js` | Yedek metnini oluşturma ve doğrulama |
-| `src/dates.js` | Tarih yardımcıları ve tekrar aralıkları (`INTERVALS`) |
-| `src/srs.js` | Tekrar mantığı |
-| `src/storage.js` | Telefonda kalıcı kayıt (AsyncStorage) |
-| `src/theme.js` | Renkler |
+```js
+{
+  id: "m3x9k2abcd",
+  en: "reluctant",
+  tr: "isteksiz, gönülsüz",
+  types: ["adj"],                        // isteğe bağlı
+  example: "She was reluctant to leave.", // isteğe bağlı
+  synonyms: "unwilling, hesitant",       // isteğe bağlı
+  antonyms: "eager, willing",            // isteğe bağlı
+  reference: "Friends 3. sezon",         // isteğe bağlı
+  topic: "Diziler",                      // isteğe bağlı
+  createdAt: "2026-11-17",
+  anchor: "2026-11-20",                  // planın son başladığı gün (bilinemediyse)
+  stage: 2,                              // 0–4 tekrar aşaması, 5 = Haznem
+  reviews: [{ date: "2026-11-18", ok: true }],
+  tests:   [{ date: "2026-12-30", ok: false }]  // Haznem testleri
+}
+```
 
-## Tekrar mantığı
+Tarihler yerel saatle `YYYY-MM-DD` metni olarak tutulur, böylece saat dilimi kaymaları olmaz.
 
-- Kelime eklendiği gün sorulmaz; ertesi gün "Çalış" ekranına düşer.
-- **Bildim** → bir sonraki tekrar aşamasına geçer (1. gün → 3. gün → 1. hafta → 2. hafta → 1. ay → tamamlandı).
-- **Bilemedim** → kart sıfırlanır, plan o günden baştan başlar: ertesi gün, 3. gün, 1. hafta, 2. hafta, 1. ay. Aynı gün tekrar sorulmaz.
-- Bir gün girmezsen kartlar kaybolmaz, "Gecikti" olarak bekler. Birkaç aşama birden kaçtıysa, tarihi geçmiş aşamalar atlanır ki aynı kelime aynı gün iki kez gelmesin.
-- 5/5 tekrarı biten kelime günlük çalışmaya bir daha gelmez, **Haznem** sekmesine geçer. Orada "Teste başla" ile tüm haznedeki kelimeler karışık sırada kart kart gelir. Test tekrar planını değiştirmez; sonunda bilemediklerini istersen tekrar planına alabilirsin.
-- Aralıkları değiştirmek için `src/dates.js` içindeki `INTERVALS` ve `STAGE_LABELS` dizilerini düzenle.
+## 🛠️ Teknolojiler
 
-## Kartlar
+- [React Native](https://reactnative.dev/) + [Expo](https://expo.dev/) (SDK 57)
+- `@react-native-async-storage/async-storage`: kalıcı kayıt
+- `expo-file-system`, `expo-sharing`, `expo-document-picker`: yedek dosyası
+- [EAS Build](https://docs.expo.dev/build/introduction/): APK derleme
 
-- Her kartta İngilizce ve Türkçe zorunlu. **Tür** (noun / verb / adj / adv / phrase), örnek cümle, **eş ve zıt anlamlılar**, **nerede gördün** (referans) ve **konu** isteğe bağlı.
-- Bir kelimenin kaç kez bilinemediği (günlük tekrar + Haznem testleri) listede ✗ rozetiyle ve kartın arkasında görünür.
-- Çalışırken kart çevrilince sağ üstte **✏️ Düzenle** çıkar.
-- Aynı İngilizce kelime zaten varsa form uyarır, düğme "Yine de ekle" olur (farklı anlamlar için).
-- Konular formdaki "+ Konu" ile eklenir, konuya uzun basarak silinir. Silinen konu kartlardan kaldırılır, kartlar silinmez.
-- Bir kart eklenince konu ve referans alanları boş kalmaz, sonraki kelime için seçili kalır.
-- Kelimelerim ekranının üstündeki arama kutusu İngilizce, Türkçe, örnek cümle, eş/zıt anlam, referans ve konuda arar (büyük/küçük harf ve ı/i, ö/o farkı gözetmez).
-- **Takvim** sekmesinde her günün altında o gün eklenen kelime sayısı (+N) yazar; güne dokununca o günün kelimeleri açılır.
-- Kelimelerim ekranında karta dokunursan örnek cümle, referans ve tekrar ilerlemesi açılır. Buradan **Düzenle** / **Sil** yapılabilir (uzun basmak da siler). Düzenleme tekrar planını bozmaz.
-
-## Yedek
-
-Sağ üstteki **💾 Yedek** düğmesi:
-- **Yedek dosyasını kaydet**: Tüm kartlar ve konular `kelime-kartlari-YYYY-MM-DD.json` dosyası olarak paylaş menüsüne gider. Drive'a, Dosyalar'a, e-postaya, WhatsApp'a kaydedebilirsin.
-- **Yedek dosyası seç**: Bu dosyayı seçersen mevcut veriler silinir, yerine yedektekiler yüklenir.
-- Eski metin yedekleri için "metni yapıştır" seçeneği hâlâ duruyor.
+Navigasyon, durum yönetimi ya da arayüz kütüphanesi kullanılmıyor; uygulama bilerek küçük ve bağımlılıksız tutuluyor.
