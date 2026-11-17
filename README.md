@@ -9,6 +9,15 @@ Dizide, kitapta, haberde karşına çıkan İngilizce kelimeleri kaydettiğin ve
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-3DDC84)
 ![Dil](https://img.shields.io/badge/aray%C3%BCz-T%C3%BCrk%C3%A7e-E30A17)
 
+<p align="center">
+  <img src="docs/screenshots/calis-on.jpg" width="160" alt="Çalış ekranı, kartın ön yüzü ve ipucu">
+  <img src="docs/screenshots/calis-arka.jpg" width="160" alt="Kartın arka yüzü, Düzenle düğmesi ve bilinemedi sayacı">
+  <img src="docs/screenshots/ekle.jpg" width="160" alt="Kelime ekleme formu">
+  <img src="docs/screenshots/takvim.jpg" width="160" alt="Takvim görünümü, her günde eklenen kelime sayısı">
+  <img src="docs/screenshots/haznem.jpg" width="160" alt="Kelime Haznem ekranı">
+</p>
+<p align="center"><sub>Çalış (ön yüz ve ipucu) · Kartın arkası · Ekle · Takvim · Kelime Haznem</sub></p>
+
 ---
 
 ## ✨ Özellikler
