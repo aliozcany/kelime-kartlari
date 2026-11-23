@@ -1,42 +1,43 @@
-# 🃏 Kelime Kartları
+# Kelime Kartları
 
 **Kendi kelimelerini ekle, unutmadan önce tekrar et.**
 
-Dizide, kitapta, haberde karşına çıkan İngilizce kelimeleri kaydettiğin ve *aralıklı tekrar* (spaced repetition) yöntemiyle 1. gün, 3. gün, 1. hafta, 2. hafta ve 1. ayda yeniden sorduğu sade bir mobil uygulama. Hesap yok, sunucu yok, reklam yok: her şey telefonunda kalır.
+Dizide, kitapta, haberde karşına çıkan İngilizce kelimeleri kaydettiğin ve *aralıklı tekrar* (spaced repetition) yöntemiyle 1. gün, 3. gün, 1. hafta, 2. hafta ve 1. ayda yeniden sorduğu bir mobil uygulama. Hesap yok, sunucu yok, reklam yok: her şey telefonunda kalır.
 
-![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=white)
-![Expo](https://img.shields.io/badge/Expo-SDK_57-000020?logo=expo&logoColor=white)
-![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-3DDC84)
-![Dil](https://img.shields.io/badge/aray%C3%BCz-T%C3%BCrk%C3%A7e-E30A17)
+![React Native](https://img.shields.io/badge/React_Native-0.86-1C1B18?logo=react&logoColor=white)
+![Expo](https://img.shields.io/badge/Expo-SDK_57-1C1B18?logo=expo&logoColor=white)
+![NativeWind](https://img.shields.io/badge/NativeWind-Tailwind-1C1B18?logo=tailwindcss&logoColor=white)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-2E5E4A)
 
 <p align="center">
-  <img src="docs/screenshots/calis-on.jpg" width="160" alt="Çalış ekranı, kartın ön yüzü ve ipucu">
-  <img src="docs/screenshots/calis-arka.jpg" width="160" alt="Kartın arka yüzü, Düzenle düğmesi ve bilinemedi sayacı">
-  <img src="docs/screenshots/ekle.jpg" width="160" alt="Kelime ekleme formu">
-  <img src="docs/screenshots/takvim.jpg" width="160" alt="Takvim görünümü, her günde eklenen kelime sayısı">
-  <img src="docs/screenshots/haznem.jpg" width="160" alt="Kelime Haznem ekranı">
+  <img src="docs/screenshots/calis-ipucu.jpg" width="200" alt="Çalış ekranı: kartın ön yüzü ve sırayla açılan ipuçları">
+  <img src="docs/screenshots/calis-arka.jpg" width="200" alt="Kartın arka yüzü: anlam, tür, örnek cümle, eş ve zıt anlamlılar">
+  <img src="docs/screenshots/zorlandiklarim.jpg" width="200" alt="Zorlandıklarım: hata oranına göre sıralı liste">
 </p>
-<p align="center"><sub>Çalış (ön yüz ve ipucu) · Kartın arkası · Ekle · Takvim · Kelime Haznem</sub></p>
+<p align="center">
+  <img src="docs/screenshots/ekle.jpg" width="200" alt="Kelime ekleme formu, ayrıntılar bölümü açık">
+  <img src="docs/screenshots/takvim.jpg" width="200" alt="Kelimelerim: takvim görünümü">
+  <img src="docs/screenshots/koyu.jpg" width="200" alt="Koyu tema">
+</p>
+<p align="center"><sub>Çalış ve ipuçları · Kartın arkası · Zorlandıklarım · Ekle · Takvim · Koyu tema</sub></p>
 
 ---
 
-## ✨ Özellikler
+## Özellikler
 
-| | |
-|---|---|
-| 📖 **Günlük çalışma** | Tarihi gelen kartlar çevirme animasyonlu kartlarla sorulur. Takılırsan ipucu butonuna her basışta bir ipucu daha açılır: örnek cümle → eş anlamlı → zıt anlamlı (kartta olmayan atlanır). |
-| 🔁 **Aralıklı tekrar** | Bildiğin kelime bir sonraki aşamaya geçer, bilemediğin baştan başlar. Kaçırılan günler birikmez. |
-| 🏆 **Kelime Haznem** | 5/5 tekrarı biten kelimeler günlük çalışmadan çıkar, haznene geçer. İstediğin zaman hepsiyle karışık bir test yapabilirsin. |
-| 📅 **Takvim** | Her günün altında o gün kaç kelime eklediğin yazar (+4, +7…). Güne dokununca o günün kelimeleri açılır. |
-| 🎯 **Zorlandıklarım** | Bilinemeyen kelimeler hata oranına göre (bilinemedi ÷ sorulma) sıralanır. Cevap vermeden bakıp çalışmak için; istersen anlamları gizleyip tek tek açabilirsin. |
-| 🌗 **Açık / koyu tema** | Telefonun temasına uyar. |
-| 🏷️ **Zengin kartlar** | Tür (noun, verb, adj, adv, phrase), örnek cümle, eş ve zıt anlamlılar, nerede gördüğün ve konu. Hepsi isteğe bağlı. |
-| 🔍 **Arama** | İngilizce, Türkçe, örnek cümle ve eş/zıt anlamlılarda arar. Büyük/küçük harf ve ı/i, ö/o farkına takılmaz. |
-| ✏️ **Her yerden düzenleme** | Çalışırken kartın arkasından ya da listeden düzenleyebilirsin. Düzenlemek tekrar planını bozmaz. |
-| 💾 **Dosya ile yedek** | Tüm veriler tek bir `.json` dosyasına kaydedilir: Drive'a, Dosyalar'a, WhatsApp'a gönder. Yeni telefonda dosyayı seçip geri yükle. |
-| ⚠️ **Tekrar uyarısı** | Aynı kelimeyi ikinci kez eklemeye çalışırsan uyarır. Farklı bir anlamı içinse yine de ekleyebilirsin. |
+**Çalış.** Tarihi gelen kelimeler çevrilebilir kartlarla sorulur; kartın önünde İngilizcesi, arkasında anlamı, türü, örnek cümlesi ve eş/zıt anlamlıları vardır. Takılırsan ipucu butonuna her basışta bir ipucu daha açılır: önce **örnek cümle**, sonra **eş anlamlı**, sonra **zıt anlamlı**. Kartta olmayan ipucu atlanır.
 
-## 🔁 Tekrar nasıl çalışıyor?
+**Zorlandıklarım.** En az bir kez bilinemeyen kelimeler *hata oranına* göre sıralanır (bilinemediği sayı ÷ kaç kez sorulduğu). Burada cevap verilmez, tekrar planı değişmez; sadece bakıp çalışmak içindir. İstersen anlamları gizleyip dokundukça tek tek açarak kendini yoklayabilirsin.
+
+**Ekle.** İngilizce, Türkçe, tür ve konu tek ekranda. Örnek cümle, eş/zıt anlamlılar ve "nerede gördün" katlanır *Ayrıntılar* bölümünde durur; bir kez açınca açık kalır. Aynı kelimeyi ikinci kez eklemeye çalışırsan uyarır. Klavye açıkken alanlar kapanmaz.
+
+**Kelimelerim.** Gün, hafta, ay ya da takvim görünümü. Takvimde her günün altında o gün kaç kelime eklediğin yazar. İngilizce, Türkçe, örnek cümle ve eş/zıt anlamlılarda arama yapar; büyük/küçük harf ve ı/i, ö/o farkına takılmaz.
+
+**Kelime Haznem.** 5/5 tekrarı biten kelimeler günlük çalışmadan çıkıp buraya geçer. İstediğin zaman hepsiyle karışık bir test yapabilirsin.
+
+**Ayrıca:** Her yerden düzenleme (düzenlemek tekrar planını bozmaz) · tek dosyayla yedek ve geri yükleme · telefonun temasına uyan açık/koyu görünüm.
+
+## Tekrar nasıl çalışıyor?
 
 ```mermaid
 flowchart LR
@@ -45,7 +46,7 @@ flowchart LR
     S2 -->|Bildim| S3[1. hafta]
     S3 -->|Bildim| S4[2. hafta]
     S4 -->|Bildim| S5[1. ay]
-    S5 -->|Bildim| H([🏆 Haznem])
+    S5 -->|Bildim| H([Haznem])
     S1 & S2 & S3 & S4 & S5 -.->|Bilemedim| R[Plan bugünden<br/>baştan başlar]
     R -.-> S1
 ```
@@ -56,7 +57,13 @@ flowchart LR
 - **Haznem testi** tekrar planını değiştirmez, sadece sonucu kaydeder. Test bitince bilemediklerini istersen tek dokunuşla tekrar plana alabilirsin.
 - Aralıkları değiştirmek için [`src/dates.js`](src/dates.js) içindeki `INTERVALS` ve `STAGE_LABELS` dizilerini düzenlemen yeterli.
 
-## 🚀 Kurulum
+## Tasarım
+
+Uygulama bir dizin kartı fikrinden yola çıkar: kâğıt rengi zemin, mürekkep siyahı yazı, kartın üstünde ince kırmızı çizgi ve ipuçlarında fosforlu kalem sarısı. Kelimeler sözlük havası veren tırnaklı [Newsreader](https://fonts.google.com/specimen/Newsreader), arayüz [Instrument Sans](https://fonts.google.com/specimen/Instrument+Sans) ile yazılır.
+
+Renkler [`global.css`](global.css) içinde CSS değişkenleri olarak tanımlıdır (açık ve koyu tema). `className` kullanılamayan yerler (ikon rengi, placeholder) için aynı değerler [`src/theme.js`](src/theme.js) içinde de durur; birini değiştirirsen ötekini de değiştir.
+
+## Kurulum
 
 ```bash
 git clone https://github.com/aliozcany/kelime-kartlari.git
@@ -70,7 +77,7 @@ npm install
 npx expo start
 ```
 
-Telefondaki **Expo Go** uygulamasıyla QR kodu okut (bilgisayar ve telefon aynı Wi-Fi'de olmalı).
+Telefondaki **Expo Go** uygulamasıyla QR kodu okut (bilgisayar ve telefon aynı Wi-Fi'de olmalı). Bilgisayarda tarayıcıda açmak için `npx expo start --web`.
 
 ### Telefona APK olarak kurmak (Android)
 
@@ -81,21 +88,25 @@ npx eas-cli build -p android --profile apk
 
 Derleme Expo'nun sunucularında yapılır. Bitince verilen linki telefondan açıp APK'yı kur. Yeni sürümü eskisinin üstüne kurarsan kelimelerin silinmez.
 
+> Yeni bir native paket eklendiğinde (ör. `react-native-keyboard-controller`) telefondaki eski APK yeni kodla çalışmaz; yeniden derlemek gerekir.
+
 > **Windows'ta** PowerShell `npx` için "running scripts is disabled" hatası verirse, `npx` yerine `npx.cmd` yaz.
 
-## 🗂️ Proje yapısı
+## Proje yapısı
 
 ```
-App.js                     Alt sekmeler, veri yükleme/kaydetme, Yedek düğmesi
+App.js                     Alt sekmeler, fontlar, veri yükleme/kaydetme, Yedek düğmesi
+global.css                 Tema renkleri (açık / koyu)
+tailwind.config.js         Renk ve font tanımları
 src/
 ├── screens/
-│   ├── StudyScreen.js     Günlük çalışma: kart çevirme, ipucu, Bildim / Bilemedim
+│   ├── ListScreen.js      Kelimelerim: arama; gün / hafta / ay listesi ve takvim
+│   ├── VaultScreen.js     Kelime Haznem ve karışık test
+│   ├── StudyScreen.js     Çalış: kart çevirme, ipuçları, Bildim / Bilemedim
 │   ├── AddScreen.js       Yeni kelime ekleme
-│   ├── ListScreen.js      Arama; gün / hafta / ay listesi ve takvim; düzenle, sil
-│   ├── HardScreen.js      Zorlandıklarım: hata oranına göre sıralı liste
-│   └── VaultScreen.js     Kelime Haznem ve karışık test
+│   └── HardScreen.js      Zorlandıklarım: hata oranına göre sıralı liste
 ├── components/
-│   ├── ui/                Temel bileşenler: Text, Button, Input, Chip, Badge (React Native Reusables tarzı)
+│   ├── ui/                Temel bileşenler: Text, Button, Input, Chip, Badge
 │   ├── FlipCard.js        Çevrilebilir kart (Çalış ve Haznem ortak)
 │   ├── HintPanel.js       Sırayla açılan ipuçları
 │   ├── AnswerRow.js       Bilemedim / Bildim butonları
@@ -105,15 +116,14 @@ src/
 │   ├── BackupSheet.js     Dosyaya yedekle / dosyadan geri yükle
 │   └── Sheet.js           Alttan açılan pencere
 ├── lib/                   cn() yardımcısı, NativeWind tanıtımları
-├── srs.js                 Tekrar mantığı (bildim, bilemedim, test, hata oranı, ipuçları)
+├── srs.js                 Tekrar mantığı: bildim, bilemedim, test, hata oranı, ipuçları
 ├── dates.js               Tarih yardımcıları ve tekrar aralıkları
 ├── backup.js              Yedek oluşturma ve doğrulama
 ├── storage.js             Telefonda kalıcı kayıt (AsyncStorage)
-└── theme.js               Koyu/açık renkler (className kullanılamayan yerler için)
-global.css                 Tema renkleri (CSS değişkenleri) — stiller NativeWind (Tailwind) ile
+└── theme.js               className kullanılamayan yerler için renkler
 ```
 
-## 🧩 Veri yapısı
+## Veri yapısı
 
 Her kart telefonda (AsyncStorage) şu şekilde saklanır. Yedek dosyası da aynı yapıdadır:
 
@@ -123,9 +133,9 @@ Her kart telefonda (AsyncStorage) şu şekilde saklanır. Yedek dosyası da ayn�
   en: "reluctant",
   tr: "isteksiz, gönülsüz",
   types: ["adj"],                        // isteğe bağlı
-  example: "She was reluctant to leave.", // isteğe bağlı
-  synonyms: "unwilling, hesitant",       // isteğe bağlı
-  antonyms: "eager, willing",            // isteğe bağlı
+  example: "She was reluctant to leave.", // isteğe bağlı, 1. ipucu
+  synonyms: "unwilling, hesitant",       // isteğe bağlı, 2. ipucu
+  antonyms: "eager, willing",            // isteğe bağlı, 3. ipucu
   reference: "Friends 3. sezon",         // isteğe bağlı
   topic: "Diziler",                      // isteğe bağlı
   createdAt: "2026-11-17",
@@ -136,13 +146,15 @@ Her kart telefonda (AsyncStorage) şu şekilde saklanır. Yedek dosyası da ayn�
 }
 ```
 
-Tarihler yerel saatle `YYYY-MM-DD` metni olarak tutulur, böylece saat dilimi kaymaları olmaz.
+Tarihler yerel saatle `YYYY-MM-DD` metni olarak tutulur, böylece saat dilimi kaymaları olmaz. Hata oranı `reviews` ve `tests` kayıtlarından hesaplanır, ayrıca saklanmaz.
 
-## 🛠️ Teknolojiler
+## Teknolojiler
 
 - [React Native](https://reactnative.dev/) + [Expo](https://expo.dev/) (SDK 57)
+- [NativeWind](https://www.nativewind.dev/) (Tailwind CSS) ve [React Native Reusables](https://reactnativereusables.com/) tarzında bileşenler (`class-variance-authority`, `tailwind-merge`)
+- [Lucide](https://lucide.dev/) ikonlar, `expo-font` ile Google Fonts
+- `react-native-keyboard-controller`: klavye açıkken formun kayması
+- `expo-haptics`: cevap verince titreşim
 - `@react-native-async-storage/async-storage`: kalıcı kayıt
 - `expo-file-system`, `expo-sharing`, `expo-document-picker`: yedek dosyası
 - [EAS Build](https://docs.expo.dev/build/introduction/): APK derleme
-
-Navigasyon, durum yönetimi ya da arayüz kütüphanesi kullanılmıyor; uygulama bilerek küçük ve bağımlılıksız tutuluyor.
