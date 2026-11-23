@@ -1,25 +1,53 @@
+import './src/lib/interop';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, AppState, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, Pressable, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+// Fontlar tek tek alınır; paketin ana girişi bütün kalınlıkları uygulamaya gömer
+import { InstrumentSans_400Regular } from '@expo-google-fonts/instrument-sans/400Regular';
+import { InstrumentSans_500Medium } from '@expo-google-fonts/instrument-sans/500Medium';
+import { InstrumentSans_600SemiBold } from '@expo-google-fonts/instrument-sans/600SemiBold';
+import { InstrumentSans_700Bold } from '@expo-google-fonts/instrument-sans/700Bold';
+import { Newsreader_400Regular_Italic } from '@expo-google-fonts/newsreader/400Regular_Italic';
+import { Newsreader_500Medium } from '@expo-google-fonts/newsreader/500Medium';
+import { Newsreader_600SemiBold } from '@expo-google-fonts/newsreader/600SemiBold';
+import { BookOpen, HardDriveDownload, Library, Plus, Target, Trophy } from 'lucide-react-native';
 
-import { C } from './src/theme';
+import { useColors } from './src/theme';
+import { cn } from './src/lib/utils';
 import { loadCards, loadTopics, saveCards, saveTopics } from './src/storage';
-import { isDue, todayStr } from './src/dates';
+import { formatDay, isDue, todayStr } from './src/dates';
 import StudyScreen from './src/screens/StudyScreen';
 import AddScreen from './src/screens/AddScreen';
 import ListScreen from './src/screens/ListScreen';
+import HardScreen from './src/screens/HardScreen';
 import VaultScreen from './src/screens/VaultScreen';
 import BackupSheet from './src/components/BackupSheet';
+import { Button } from './src/components/ui/button';
+import { Text } from './src/components/ui/text';
 
 const TABS = [
-  { key: 'study', label: 'Çalış', icon: '📖' },
-  { key: 'add', label: 'Ekle', icon: '➕' },
-  { key: 'list', label: 'Kelimelerim', icon: '🗂️' },
-  { key: 'vault', label: 'Haznem', icon: '🏆' },
+  { key: 'list', label: 'Kelimelerim', title: 'Kelimelerim', Icon: Library },
+  { key: 'vault', label: 'Haznem', title: 'Kelime Haznem', Icon: Trophy },
+  { key: 'study', label: 'Çalış', title: 'Bugünkü tekrar', Icon: BookOpen },
+  { key: 'add', label: 'Ekle', title: 'Yeni kelime', Icon: Plus },
+  { key: 'hard', label: 'Zorlandıklarım', title: 'Zorlandıklarım', Icon: Target },
 ];
 
 export default function App() {
+  const scheme = useColorScheme();
+  const colors = useColors();
+  const [fontsLoaded] = useFonts({
+    InstrumentSans_400Regular,
+    InstrumentSans_500Medium,
+    InstrumentSans_600SemiBold,
+    InstrumentSans_700Bold,
+    Newsreader_400Regular_Italic,
+    Newsreader_500Medium,
+    Newsreader_600SemiBold,
+  });
   const [cards, setCards] = useState(null);
   const [topics, setTopics] = useState([]);
   const [tab, setTab] = useState('study');
@@ -74,10 +102,10 @@ export default function App() {
 
   const topicProps = { topics, onAddTopic: addTopic, onRemoveTopic: removeTopic };
 
-  if (!cards) {
+  if (!cards || !fontsLoaded) {
     return (
-      <View style={[styles.root, { alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={C.accent} />
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator color={colors.foreground} />
       </View>
     );
   }
@@ -85,70 +113,69 @@ export default function App() {
   const today = todayStr();
   const dueCount = cards.filter((c) => isDue(c, today)).length;
   const todayCount = cards.filter((c) => c.createdAt === today).length;
+  const current = TABS.find((t) => t.key === tab);
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-        <StatusBar style="dark" />
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{TABS.find((t) => t.key === tab).label}</Text>
-            <Text style={styles.sub}>{cards.length} kelime · bugün {dueCount} tekrar</Text>
+      <KeyboardProvider>
+        <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
+          <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+          <View className="flex-row items-end px-5 pb-3 pt-3">
+            <View className="flex-1">
+              <Text variant="overline">{formatDay(today)}</Text>
+              <Text variant="title" className="mt-1">{current.title}</Text>
+              <Text variant="muted" className="mt-0.5">
+                {cards.length} kelime · bugün {dueCount} tekrar
+              </Text>
+            </View>
+            <Button variant="outline" size="sm" onPress={() => setBackupOpen(true)} className="mb-0.5">
+              <HardDriveDownload size={15} color={colors.foreground} />
+              <Text>Yedek</Text>
+            </Button>
           </View>
-          <Pressable onPress={() => setBackupOpen(true)} hitSlop={8} style={styles.headerBtn}>
-            <Text style={styles.headerBtnText}>💾 Yedek</Text>
-          </Pressable>
-        </View>
 
-        <View style={{ flex: 1 }}>
-          {tab === 'study' && <StudyScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
-          {tab === 'add' && <AddScreen cards={cards} onAdd={addCard} todayCount={todayCount} {...topicProps} />}
-          {tab === 'list' && <ListScreen cards={cards} onUpdate={updateCard} onDelete={deleteCard} {...topicProps} />}
-          {tab === 'vault' && <VaultScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
-        </View>
+          <View className="flex-1">
+            {tab === 'study' && <StudyScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
+            {tab === 'add' && <AddScreen cards={cards} onAdd={addCard} todayCount={todayCount} {...topicProps} />}
+            {tab === 'list' && <ListScreen cards={cards} onUpdate={updateCard} onDelete={deleteCard} {...topicProps} />}
+            {tab === 'hard' && <HardScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
+            {tab === 'vault' && <VaultScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
+          </View>
 
-        <BackupSheet
-          visible={backupOpen}
-          onClose={() => setBackupOpen(false)}
-          cards={cards}
-          topics={topics}
-          onRestore={restore}
-        />
+          <BackupSheet
+            visible={backupOpen}
+            onClose={() => setBackupOpen(false)}
+            cards={cards}
+            topics={topics}
+            onRestore={restore}
+          />
 
-        <View style={styles.tabBar}>
-          {TABS.map((t) => {
-            const active = tab === t.key;
-            return (
-              <Pressable key={t.key} onPress={() => setTab(t.key)} style={styles.tabBtn}>
-                <View>
-                  <Text style={[styles.tabIcon, !active && { opacity: 0.45 }]}>{t.icon}</Text>
-                  {t.key === 'study' && dueCount > 0 && (
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>{dueCount}</Text>
-                    </View>
-                  )}
-                </View>
-                <Text style={[styles.tabLabel, active && { color: C.accent }]}>{t.label}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </SafeAreaView>
+          <View className="flex-row border-t border-border bg-background px-1 pb-1 pt-2">
+            {TABS.map(({ key, label, Icon }) => {
+              const active = tab === key;
+              return (
+                <Pressable key={key} onPress={() => setTab(key)} className="flex-1 items-center gap-1 py-1" role="tab">
+                  <View>
+                    <Icon size={22} strokeWidth={active ? 2.2 : 1.7} color={active ? colors.foreground : colors.mutedForeground} />
+                    {key === 'study' && dueCount > 0 ? (
+                      <View className="absolute -right-3 -top-1.5 h-[17px] min-w-[17px] items-center justify-center rounded-full bg-danger px-1">
+                        <Text className="font-sans-sb text-[10px] text-primary-foreground">{dueCount}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.8}
+                    className={cn('text-[10px] tracking-tight', active ? 'font-sans-sb text-foreground' : 'font-sans-md text-muted-foreground')}>
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </SafeAreaView>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.bg },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4 },
-  headerBtn: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.line, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6 },
-  headerBtnText: { fontSize: 13, fontWeight: '600', color: C.ink },
-  title: { fontSize: 28, fontWeight: '800', color: C.ink },
-  sub: { fontSize: 14, color: C.muted, marginTop: 2 },
-  tabBar: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: C.line, backgroundColor: C.surface, paddingTop: 8, paddingBottom: 4 },
-  tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 4 },
-  tabIcon: { fontSize: 22 },
-  tabLabel: { fontSize: 12, color: C.muted, marginTop: 2, fontWeight: '600' },
-  badge: { position: 'absolute', top: -4, right: -14, backgroundColor: C.warn, borderRadius: 9, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
-  badgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
-});

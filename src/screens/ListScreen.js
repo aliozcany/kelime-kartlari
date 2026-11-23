@@ -1,11 +1,16 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
-import { C } from '../theme';
+import { Alert, Pressable, SectionList, TextInput, View } from 'react-native';
+import { Search, X } from 'lucide-react-native';
 import { formatDay, formatMonth, formatShort, formatWeek, monthKey, nextDue, todayStr, weekStart, INTERVALS } from '../dates';
 import { missCount } from '../srs';
+import { useColors } from '../theme';
+import { cn } from '../lib/utils';
 import { WORD_TYPES } from '../components/CardForm';
 import EditCardSheet from '../components/EditCardSheet';
 import CalendarView from '../components/CalendarView';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Text } from '../components/ui/text';
 
 const MODES = [
   { key: 'day', label: 'Gün' },
@@ -43,13 +48,14 @@ function groupTitle(mode, key) {
 
 function status(card, today) {
   const n = nextDue(card);
-  if (n === null) return { text: 'Haznede', color: C.accent };
-  if (n < today) return { text: 'Gecikti', color: C.warn };
-  if (n === today) return { text: 'Bugün', color: C.hint };
-  return { text: formatShort(n), color: C.muted };
+  if (n === null) return { text: 'Haznede', className: 'text-accent' };
+  if (n < today) return { text: 'Gecikti', className: 'text-danger' };
+  if (n === today) return { text: 'Bugün', className: 'text-foreground' };
+  return { text: formatShort(n), className: 'text-muted-foreground' };
 }
 
 export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTopic, onRemoveTopic }) {
+  const colors = useColors();
   const [mode, setMode] = useState('day');
   const [open, setOpen] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -98,108 +104,117 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
   else if (mode === 'cal') emptyText = calDay ? 'Bu gün kelime eklenmemiş.' : 'Kelimelerini görmek için bir güne dokun.';
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={styles.searchWrap}>
+    <View className="flex-1">
+      <View className="mx-5 mt-1 h-11 flex-row items-center gap-2 rounded-xl border border-input bg-card px-3">
+        <Search size={17} color={colors.mutedForeground} />
         <TextInput
-          style={styles.search}
+          className="flex-1 font-sans text-base text-foreground"
           value={query}
           onChangeText={setQuery}
-          placeholder="🔍  Kelime ara"
-          placeholderTextColor="#A8ACB2"
+          placeholder="Kelime, anlam ya da cümle ara"
+          placeholderTextColor={colors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
         />
         {query ? (
-          <Pressable onPress={() => setQuery('')} hitSlop={10} style={styles.clear}>
-            <Text style={styles.clearText}>✕</Text>
+          <Pressable onPress={() => setQuery('')} hitSlop={10}>
+            <X size={17} color={colors.mutedForeground} />
           </Pressable>
         ) : null}
       </View>
 
       {!q ? (
-        <View style={styles.segment}>
-          {MODES.map((m) => (
-            <Pressable key={m.key} onPress={() => setMode(m.key)} style={[styles.segBtn, mode === m.key && styles.segActive]}>
-              <Text style={[styles.segText, mode === m.key && styles.segTextActive]}>{m.label}</Text>
-            </Pressable>
-          ))}
+        <View className="mx-5 mt-3 flex-row rounded-xl bg-muted p-1">
+          {MODES.map((m) => {
+            const active = mode === m.key;
+            return (
+              <Pressable
+                key={m.key}
+                onPress={() => setMode(m.key)}
+                className={cn('h-9 flex-1 items-center justify-center rounded-lg', active && 'bg-card')}
+              >
+                <Text className={cn('text-sm', active ? 'font-sans-sb text-foreground' : 'font-sans-md text-muted-foreground')}>
+                  {m.label}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
       ) : null}
 
       <SectionList
         sections={sections}
         keyExtractor={(c) => c.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 32 }}
         stickySectionHeadersEnabled={false}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
           !q && mode === 'cal' ? <CalendarView counts={counts} selected={calDay} onSelect={setCalDay} today={today} /> : null
         }
-        ListEmptyComponent={<Text style={styles.empty}>{emptyText}</Text>}
+        ListEmptyComponent={<Text variant="muted" className="mt-10 text-center text-[15px]">{emptyText}</Text>}
         renderSectionHeader={({ section }) => (
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{section.title}</Text>
-            <Text style={styles.headerCount}>{section.data.length} kelime</Text>
+          <View className="mb-1 mt-5 flex-row items-baseline justify-between">
+            <Text variant="overline" className="text-foreground">{section.title}</Text>
+            <Text variant="small">{section.data.length} kelime</Text>
           </View>
         )}
+        ItemSeparatorComponent={() => <View className="h-px bg-border" />}
         renderItem={({ item }) => {
           const s = status(item, today);
           const isOpen = open === item.id;
           const misses = missCount(item);
           return (
-            <Pressable onPress={() => setOpen(isOpen ? null : item.id)} onLongPress={() => confirmDelete(item)} style={styles.row}>
-              <View style={styles.rowTop}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.en}>{item.en}</Text>
-                  <Text style={styles.tr}>{item.tr}</Text>
+            <Pressable
+              onPress={() => setOpen(isOpen ? null : item.id)}
+              onLongPress={() => confirmDelete(item)}
+              className="py-3 active:opacity-70"
+            >
+              <View className="flex-row items-start">
+                <View className="flex-1">
+                  <Text variant="word">{item.en}</Text>
+                  <Text variant="muted" className="mt-0.5 text-[15px]">{item.tr}</Text>
                   {item.topic || item.types?.length ? (
-                    <View style={styles.tagRow}>
-                      {(item.types || []).map((t) => (
-                        <Text key={t} style={styles.typeTag}>{typeLabel(t)}</Text>
-                      ))}
-                      {item.topic ? <Text style={styles.tag}>{item.topic}</Text> : null}
+                    <View className="mt-1.5 flex-row flex-wrap items-center gap-1.5">
+                      {item.types?.length ? (
+                        <Text className="font-serif-i text-[15px] text-muted-foreground">
+                          {item.types.map(typeLabel).join(' · ')}
+                        </Text>
+                      ) : null}
+                      {item.topic ? <Badge variant="accent">{item.topic}</Badge> : null}
                     </View>
                   ) : null}
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={[styles.status, { color: s.color }]}>{s.text}</Text>
-                  {misses > 0 ? <Text style={styles.miss}>✗ {misses}</Text> : null}
+                <View className="items-end gap-1 pl-3 pt-1">
+                  <Text className={cn('font-sans-sb text-xs', s.className)}>{s.text}</Text>
+                  {misses > 0 ? <Badge variant="danger">{`${misses} hata`}</Badge> : null}
                 </View>
               </View>
-              {isOpen && (
-                <View style={styles.detail}>
-                  {item.example ? <Text style={styles.example}>“{item.example}”</Text> : null}
-                  {item.synonyms ? (
-                    <Text style={styles.rel}>
-                      <Text style={styles.relKey}>Eş: </Text>
-                      {item.synonyms}
-                    </Text>
-                  ) : null}
-                  {item.antonyms ? (
-                    <Text style={styles.rel}>
-                      <Text style={styles.relKey}>Zıt: </Text>
-                      {item.antonyms}
-                    </Text>
-                  ) : null}
-                  {item.reference ? <Text style={styles.reference}>📍 {item.reference}</Text> : null}
-                  {misses > 0 ? <Text style={styles.missLine}>{misses} kez bilinemedi</Text> : null}
-                  <View style={styles.dots}>
+
+              {isOpen ? (
+                <View className="mt-3 gap-1.5">
+                  {item.example ? <Text className="font-serif-i text-[16px] leading-[22px]">“{item.example}”</Text> : null}
+                  {item.synonyms ? <Rel label="Eş" text={item.synonyms} /> : null}
+                  {item.antonyms ? <Rel label="Zıt" text={item.antonyms} /> : null}
+                  {item.reference ? <Text variant="muted">{item.reference}</Text> : null}
+                  <View className="mt-1.5 flex-row items-center gap-1.5">
                     {INTERVALS.map((_, i) => (
-                      <View key={i} style={[styles.dot, i < item.stage && { backgroundColor: C.accent }]} />
+                      <View key={i} className={cn('h-1.5 w-6 rounded-full', i < item.stage ? 'bg-accent' : 'bg-muted')} />
                     ))}
-                    <Text style={styles.dotLabel}>{Math.min(item.stage, INTERVALS.length)}/{INTERVALS.length} tekrar</Text>
+                    <Text variant="small" className="ml-1.5">
+                      {Math.min(item.stage, INTERVALS.length)}/{INTERVALS.length} tekrar
+                    </Text>
                   </View>
-                  <View style={styles.actions}>
-                    <Pressable onPress={() => setEditingId(item.id)} style={styles.actionBtn}>
-                      <Text style={[styles.actionText, { color: C.accent }]}>Düzenle</Text>
-                    </Pressable>
-                    <Pressable onPress={() => confirmDelete(item)} style={[styles.actionBtn, { backgroundColor: C.warnSoft }]}>
-                      <Text style={[styles.actionText, { color: C.warn }]}>Sil</Text>
-                    </Pressable>
+                  <View className="mt-2 flex-row gap-2">
+                    <Button variant="outline" size="sm" className="flex-1" onPress={() => setEditingId(item.id)}>
+                      <Text>Düzenle</Text>
+                    </Button>
+                    <Button variant="dangerSoft" size="sm" className="flex-1" onPress={() => confirmDelete(item)}>
+                      <Text>Sil</Text>
+                    </Button>
                   </View>
                 </View>
-              )}
+              ) : null}
             </Pressable>
           );
         }}
@@ -218,42 +233,11 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
   );
 }
 
-const styles = StyleSheet.create({
-  searchWrap: { marginHorizontal: 16, marginTop: 12, justifyContent: 'center' },
-  search: {
-    backgroundColor: C.surface, borderWidth: 1, borderColor: C.line, borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 10, paddingRight: 38, fontSize: 16, color: C.ink,
-  },
-  clear: { position: 'absolute', right: 14 },
-  clearText: { color: C.muted, fontSize: 16 },
-  segment: { flexDirection: 'row', marginHorizontal: 16, marginTop: 10, backgroundColor: '#ECE9E2', borderRadius: 12, padding: 4 },
-  segBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: 9 },
-  segActive: { backgroundColor: C.surface },
-  segText: { color: C.muted, fontWeight: '600', fontSize: 15 },
-  segTextActive: { color: C.ink },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 14, marginBottom: 8, paddingHorizontal: 4 },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: C.ink },
-  headerCount: { fontSize: 13, color: C.muted },
-  row: { backgroundColor: C.surface, borderRadius: 12, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: C.line },
-  rowTop: { flexDirection: 'row', alignItems: 'center' },
-  en: { fontSize: 17, fontWeight: '600', color: C.ink },
-  tr: { fontSize: 15, color: C.muted, marginTop: 2 },
-  status: { fontSize: 13, fontWeight: '600', marginLeft: 8 },
-  miss: { marginTop: 4, color: C.warn, backgroundColor: C.warnSoft, fontSize: 12, fontWeight: '700', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 8, overflow: 'hidden' },
-  missLine: { color: C.warn, marginBottom: 10, fontSize: 14, fontWeight: '600' },
-  detail: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: C.line },
-  example: { fontStyle: 'italic', color: C.ink, marginBottom: 10, lineHeight: 20 },
-  rel: { color: C.ink, marginBottom: 6, fontSize: 14 },
-  relKey: { fontWeight: '700', color: C.accent },
-  dots: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: C.line },
-  dotLabel: { marginLeft: 6, color: C.muted, fontSize: 13 },
-  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
-  typeTag: { color: C.hint, backgroundColor: C.hintSoft, fontSize: 12, fontWeight: '700', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, overflow: 'hidden' },
-  tag: { color: C.accent, backgroundColor: C.accentSoft, fontSize: 12, fontWeight: '600', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, overflow: 'hidden' },
-  reference: { color: C.muted, marginBottom: 10, fontSize: 14 },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 12 },
-  actionBtn: { flex: 1, backgroundColor: C.accentSoft, borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
-  actionText: { fontSize: 15, fontWeight: '700' },
-  empty: { textAlign: 'center', color: C.muted, marginTop: 40, fontSize: 16 },
-});
+function Rel({ label, text }) {
+  return (
+    <View className="flex-row items-baseline gap-2">
+      <Text variant="overline" className="w-7 text-[10px]">{label}</Text>
+      <Text className="flex-1 font-sans-md text-[15px]">{text}</Text>
+    </View>
+  );
+}

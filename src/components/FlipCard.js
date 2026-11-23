@@ -1,79 +1,86 @@
 import React from 'react';
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { C } from '../theme';
+import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { formatDay } from '../dates';
 import { missCount } from '../srs';
 import { WORD_TYPES } from './CardForm';
+import { Badge } from './ui/badge';
+import { Text } from './ui/text';
 
 const typeLabel = (k) => WORD_TYPES.find((t) => t.key === k)?.label || k;
 
+// Kartın üst kısmı: küçük başlık ve altında dizin kartlarındaki gibi ince kırmızı çizgi
+function CardTop({ label, right }) {
+  return (
+    <View className="px-6 pt-5">
+      <View className="flex-row items-center justify-between pb-3">
+        <Text variant="overline">{label}</Text>
+        {right ? <Text variant="small">{right}</Text> : null}
+      </View>
+      <View className="h-px bg-danger/30" />
+    </View>
+  );
+}
+
+function Rel({ label, text }) {
+  return (
+    <View className="mt-2 flex-row items-baseline justify-center gap-2 px-2">
+      <Text variant="overline" className="text-[10px]">{label}</Text>
+      <Text className="shrink font-sans-md text-[15px]">{text}</Text>
+    </View>
+  );
+}
+
 // Önü İngilizce, arkası Türkçe ve ayrıntılar olan çevrilebilir kart.
 // anim: 0 → ön yüz, 1 → arka yüz (sahibi bileşen yönetir)
-export default function FlipCard({ card, anim, onPress }) {
+export default function FlipCard({ card, anim, onPress, topRight }) {
   const frontRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
   const misses = missCount(card);
 
   return (
-    <Pressable onPress={onPress} style={styles.cardArea}>
-      <Animated.View style={[styles.card, { transform: [{ perspective: 1000 }, { rotateY: frontRot }] }]}>
-        <Text style={styles.lang}>İNGİLİZCE</Text>
-        <Text style={styles.word} adjustsFontSizeToFit numberOfLines={2}>{card.en}</Text>
-        <Text style={styles.tapHint}>Çevirmek için dokun</Text>
+    <Pressable onPress={onPress} className="max-h-[440px] flex-1">
+      <Animated.View style={[styles.face, { transform: [{ perspective: 1200 }, { rotateY: frontRot }] }]}>
+        <View className="flex-1 overflow-hidden rounded-3xl border border-border bg-card">
+          <CardTop label="İngilizce" right={topRight} />
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-center font-serif text-[42px] leading-[50px]" adjustsFontSizeToFit numberOfLines={2}>
+              {card.en}
+            </Text>
+          </View>
+          <Text variant="small" className="pb-5 text-center">Çevirmek için dokun</Text>
+        </View>
       </Animated.View>
-      <Animated.View style={[styles.card, styles.cardBack, { transform: [{ perspective: 1000 }, { rotateY: backRot }] }]}>
-        <Text style={[styles.lang, { color: C.accent }]}>TÜRKÇE</Text>
-        <ScrollView
-          style={styles.backScroll}
-          contentContainerStyle={styles.backBody}
-          showsVerticalScrollIndicator={false}
-        >
-          <Text style={styles.wordBack} adjustsFontSizeToFit numberOfLines={3}>{card.tr}</Text>
-          {card.types?.length ? (
-            <View style={styles.typeRow}>
-              {card.types.map((t) => (
-                <Text key={t} style={styles.type}>{typeLabel(t)}</Text>
-              ))}
-            </View>
-          ) : null}
-          {card.example ? <Text style={styles.exampleBack}>“{card.example}”</Text> : null}
-          {card.synonyms ? <Text style={styles.rel}><Text style={styles.relKey}>≈ </Text>{card.synonyms}</Text> : null}
-          {card.antonyms ? <Text style={styles.rel}><Text style={styles.relKey}>≠ </Text>{card.antonyms}</Text> : null}
-          {card.reference ? <Text style={styles.reference}>📍 {card.reference}</Text> : null}
-          {card.topic ? <Text style={styles.tag}>{card.topic}</Text> : null}
-        </ScrollView>
-        <Text style={styles.added}>
-          Eklendi: {formatDay(card.createdAt)}
-          {misses > 0 ? `  ·  ${misses} kez bilinemedi` : ''}
-        </Text>
+
+      <Animated.View style={[styles.face, { transform: [{ perspective: 1200 }, { rotateY: backRot }] }]}>
+        <View className="flex-1 overflow-hidden rounded-3xl border border-border bg-card">
+          <CardTop label="Türkçe" right={card.en} />
+          <ScrollView className="flex-1" contentContainerClassName="flex-grow items-center justify-center px-6 py-4" showsVerticalScrollIndicator={false}>
+            <Text className="text-center font-serif text-[34px] leading-[42px]" adjustsFontSizeToFit numberOfLines={3}>
+              {card.tr}
+            </Text>
+            {card.types?.length ? (
+              <Text className="mt-1 font-serif-i text-[17px] text-muted-foreground">
+                {card.types.map(typeLabel).join(' · ')}
+              </Text>
+            ) : null}
+            {card.example ? (
+              <Text className="mt-4 text-center font-serif-i text-[17px] leading-6 text-muted-foreground">“{card.example}”</Text>
+            ) : null}
+            {card.synonyms ? <Rel label="Eş" text={card.synonyms} /> : null}
+            {card.antonyms ? <Rel label="Zıt" text={card.antonyms} /> : null}
+            {card.reference ? <Text variant="muted" className="mt-3 text-center">{card.reference}</Text> : null}
+            {card.topic ? <Badge variant="accent" className="mt-3 self-center">{card.topic}</Badge> : null}
+          </ScrollView>
+          <Text variant="small" className="pb-4 text-center">
+            Eklendi {formatDay(card.createdAt)}
+            {misses > 0 ? `  ·  ${misses} kez bilinemedi` : ''}
+          </Text>
+        </View>
       </Animated.View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  cardArea: { flex: 1, maxHeight: 400 },
-  card: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: C.surface, borderRadius: 20, padding: 24,
-    alignItems: 'center', justifyContent: 'center',
-    backfaceVisibility: 'hidden',
-    borderWidth: 1, borderColor: C.line,
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3,
-  },
-  cardBack: { backgroundColor: '#FBFDFC', paddingTop: 44, paddingBottom: 44 },
-  backScroll: { alignSelf: 'stretch' },
-  backBody: { flexGrow: 1, alignItems: 'center', justifyContent: 'center' },
-  lang: { position: 'absolute', top: 20, fontSize: 12, letterSpacing: 1.5, color: C.muted, fontWeight: '600' },
-  word: { fontSize: 36, fontWeight: '700', color: C.ink, textAlign: 'center' },
-  wordBack: { fontSize: 32, fontWeight: '700', color: C.ink, textAlign: 'center' },
-  typeRow: { flexDirection: 'row', gap: 6, marginTop: 10 },
-  type: { color: C.hint, backgroundColor: C.hintSoft, fontSize: 12, fontWeight: '700', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, overflow: 'hidden' },
-  tapHint: { position: 'absolute', bottom: 20, color: C.muted, fontSize: 13 },
-  exampleBack: { marginTop: 14, fontSize: 16, color: C.muted, textAlign: 'center', fontStyle: 'italic' },
-  rel: { marginTop: 8, fontSize: 15, color: C.ink, textAlign: 'center' },
-  relKey: { fontWeight: '800', color: C.accent },
-  reference: { marginTop: 10, fontSize: 14, color: C.muted, textAlign: 'center' },
-  tag: { marginTop: 10, color: C.accent, backgroundColor: C.accentSoft, fontSize: 12, fontWeight: '600', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10, overflow: 'hidden' },
-  added: { position: 'absolute', bottom: 18, color: C.muted, fontSize: 12 },
+  face: { ...StyleSheet.absoluteFillObject, backfaceVisibility: 'hidden' },
 });

@@ -24,11 +24,12 @@ Dizide, kitapta, haberde karşına çıkan İngilizce kelimeleri kaydettiğin ve
 
 | | |
 |---|---|
-| 📖 **Günlük çalışma** | Tarihi gelen kartlar çevirme animasyonlu kartlarla sorulur. Takılırsan 💡 ipucu örnek cümleyi gösterir. |
+| 📖 **Günlük çalışma** | Tarihi gelen kartlar çevirme animasyonlu kartlarla sorulur. Takılırsan ipucu butonuna her basışta bir ipucu daha açılır: örnek cümle → eş anlamlı → zıt anlamlı (kartta olmayan atlanır). |
 | 🔁 **Aralıklı tekrar** | Bildiğin kelime bir sonraki aşamaya geçer, bilemediğin baştan başlar. Kaçırılan günler birikmez. |
 | 🏆 **Kelime Haznem** | 5/5 tekrarı biten kelimeler günlük çalışmadan çıkar, haznene geçer. İstediğin zaman hepsiyle karışık bir test yapabilirsin. |
 | 📅 **Takvim** | Her günün altında o gün kaç kelime eklediğin yazar (+4, +7…). Güne dokununca o günün kelimeleri açılır. |
-| ✗ **Zorlandıkların** | Her kelimenin kaç kez bilinemediği sayılır. Hangi kelimelerde zorlandığın bir bakışta görünür. |
+| 🎯 **Zorlandıklarım** | Bilinemeyen kelimeler hata oranına göre (bilinemedi ÷ sorulma) sıralanır. Cevap vermeden bakıp çalışmak için; istersen anlamları gizleyip tek tek açabilirsin. |
+| 🌗 **Açık / koyu tema** | Telefonun temasına uyar. |
 | 🏷️ **Zengin kartlar** | Tür (noun, verb, adj, adv, phrase), örnek cümle, eş ve zıt anlamlılar, nerede gördüğün ve konu. Hepsi isteğe bağlı. |
 | 🔍 **Arama** | İngilizce, Türkçe, örnek cümle ve eş/zıt anlamlılarda arar. Büyük/küçük harf ve ı/i, ö/o farkına takılmaz. |
 | ✏️ **Her yerden düzenleme** | Çalışırken kartın arkasından ya da listeden düzenleyebilirsin. Düzenlemek tekrar planını bozmaz. |
@@ -91,19 +92,25 @@ src/
 │   ├── StudyScreen.js     Günlük çalışma: kart çevirme, ipucu, Bildim / Bilemedim
 │   ├── AddScreen.js       Yeni kelime ekleme
 │   ├── ListScreen.js      Arama; gün / hafta / ay listesi ve takvim; düzenle, sil
+│   ├── HardScreen.js      Zorlandıklarım: hata oranına göre sıralı liste
 │   └── VaultScreen.js     Kelime Haznem ve karışık test
 ├── components/
+│   ├── ui/                Temel bileşenler: Text, Button, Input, Chip, Badge (React Native Reusables tarzı)
 │   ├── FlipCard.js        Çevrilebilir kart (Çalış ve Haznem ortak)
+│   ├── HintPanel.js       Sırayla açılan ipuçları
+│   ├── AnswerRow.js       Bilemedim / Bildim butonları
 │   ├── CardForm.js        Ekleme / düzenleme formu
 │   ├── EditCardSheet.js   Düzenleme penceresi
 │   ├── CalendarView.js    Ay takvimi (+N gösterimi)
 │   ├── BackupSheet.js     Dosyaya yedekle / dosyadan geri yükle
 │   └── Sheet.js           Alttan açılan pencere
-├── srs.js                 Tekrar mantığı (bildim, bilemedim, test, hata sayısı)
+├── lib/                   cn() yardımcısı, NativeWind tanıtımları
+├── srs.js                 Tekrar mantığı (bildim, bilemedim, test, hata oranı, ipuçları)
 ├── dates.js               Tarih yardımcıları ve tekrar aralıkları
 ├── backup.js              Yedek oluşturma ve doğrulama
 ├── storage.js             Telefonda kalıcı kayıt (AsyncStorage)
-└── theme.js               Renkler
+└── theme.js               Koyu/açık renkler (className kullanılamayan yerler için)
+global.css                 Tema renkleri (CSS değişkenleri) — stiller NativeWind (Tailwind) ile
 ```
 
 ## 🧩 Veri yapısı

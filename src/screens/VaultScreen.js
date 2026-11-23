@@ -1,10 +1,17 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Alert, Animated, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { C } from '../theme';
+import { Alert, Animated, FlatList, Pressable, View } from 'react-native';
+import { Pencil, X } from 'lucide-react-native';
 import { isMastered, todayStr } from '../dates';
 import { missCount, recordTest, restartPlan } from '../srs';
+import { useColors } from '../theme';
 import FlipCard from '../components/FlipCard';
+import HintPanel from '../components/HintPanel';
+import AnswerRow from '../components/AnswerRow';
 import EditCardSheet from '../components/EditCardSheet';
+import { ProgressBar } from './StudyScreen';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Text } from '../components/ui/text';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -18,6 +25,7 @@ function shuffle(arr) {
 // Kelime Haznem: 5/5 tekrarı bitmiş kelimeler. Günlük çalışmaya gelmezler;
 // kullanıcı istediğinde buradan kendini test eder. Test, tekrar planını değiştirmez.
 export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRemoveTopic }) {
+  const colors = useColors();
   const today = todayStr();
   const mastered = useMemo(
     () => cards.filter(isMastered).sort((a, b) => a.en.localeCompare(b.en, 'en')),
@@ -90,29 +98,30 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
       <FlatList
         data={missed}
         keyExtractor={(c) => c.id}
-        contentContainerStyle={styles.listPad}
+        contentContainerClassName="px-5 pb-8 pt-2"
         ListHeaderComponent={
-          <View>
-            <View style={styles.hero}>
-              <Text style={styles.heroBig}>{known}/{results.length}</Text>
-              <Text style={styles.heroText}>
-                {missed.length === 0 ? 'Hepsini bildin 🎉' : `${missed.length} kelimeyi bilemedin`}
-              </Text>
-            </View>
-            {missed.length > 0 ? <Text style={styles.section}>Bilemediklerin</Text> : null}
+          <View className="mb-4 items-center rounded-2xl border border-border bg-card px-5 py-7">
+            <Text className="font-serif text-[52px] leading-[60px]">
+              {known}<Text className="font-serif text-[30px] text-muted-foreground">/{results.length}</Text>
+            </Text>
+            <Text variant="muted" className="mt-1 text-[15px]">
+              {missed.length === 0 ? 'Hepsini bildin.' : `${missed.length} kelimeyi bilemedin`}
+            </Text>
+            {missed.length > 0 ? <Text variant="overline" className="mt-6 self-start">Bilemediklerin</Text> : null}
           </View>
         }
         renderItem={({ item }) => <WordRow card={item} />}
+        ItemSeparatorComponent={() => <View className="h-px bg-border" />}
         ListFooterComponent={
-          <View style={{ marginTop: 16, gap: 10 }}>
+          <View className="mt-4 gap-2.5">
             {missed.length > 0 ? (
-              <Pressable onPress={restartMissed} style={[styles.btn, { backgroundColor: C.warnSoft }]}>
-                <Text style={[styles.btnText, { color: C.warn }]}>Bilemediklerimi tekrar planına al</Text>
-              </Pressable>
+              <Button variant="dangerSoft" onPress={restartMissed}>
+                <Text>Bilemediklerimi tekrar planına al</Text>
+              </Button>
             ) : null}
-            <Pressable onPress={exit} style={styles.btn}>
-              <Text style={styles.btnText}>Haznem'e dön</Text>
-            </Pressable>
+            <Button onPress={exit}>
+              <Text>Haznem'e dön</Text>
+            </Button>
           </View>
         }
       />
@@ -124,34 +133,35 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
     const done = results.length;
     const total = done + liveQueue.length;
     return (
-      <View style={styles.wrap}>
-        <View style={styles.topRow}>
-          <Pressable onPress={exit} hitSlop={8}>
-            <Text style={styles.exit}>✕ Testi bitir</Text>
-          </Pressable>
-          <View style={styles.topRight}>
-            {flipped ? (
-              <Pressable onPress={() => setEditing(true)} hitSlop={8} style={styles.editBtn}>
-                <Text style={styles.editText}>✏️ Düzenle</Text>
-              </Pressable>
-            ) : null}
-            <Text style={styles.counter}>{done + 1}/{total}</Text>
+      <View className="flex-1 px-5 pb-4 pt-2">
+        <View className="mb-4 gap-2.5">
+          <View className="flex-row items-center justify-between">
+            <Pressable onPress={exit} hitSlop={8} className="flex-row items-center gap-1">
+              <X size={15} color={colors.mutedForeground} />
+              <Text variant="label">Testi bitir</Text>
+            </Pressable>
+            <View className="flex-row items-center gap-1">
+              {flipped ? (
+                <Button variant="ghost" size="sm" className="-my-2" onPress={() => setEditing(true)}>
+                  <Pencil size={14} color={colors.mutedForeground} />
+                  <Text className="font-sans-md text-[13px] text-muted-foreground">Düzenle</Text>
+                </Button>
+              ) : null}
+              <Text variant="label">
+                <Text className="font-sans-sb text-[13px] text-foreground">{done + 1}</Text> / {total}
+              </Text>
+            </View>
           </View>
+          <ProgressBar value={total ? done / total : 0} />
         </View>
 
-        <FlipCard card={card} anim={anim} onPress={flip} />
+        <FlipCard card={card} anim={anim} onPress={flip} topRight="Haznem testi" />
 
-        <View style={styles.answerRow}>
-          {flipped ? (
-            <>
-              <Pressable onPress={() => answer(false)} style={[styles.answerBtn, { backgroundColor: C.warnSoft }]}>
-                <Text style={[styles.answerText, { color: C.warn }]}>Bilemedim</Text>
-              </Pressable>
-              <Pressable onPress={() => answer(true)} style={[styles.answerBtn, { backgroundColor: C.accent }]}>
-                <Text style={[styles.answerText, { color: '#fff' }]}>Bildim</Text>
-              </Pressable>
-            </>
-          ) : null}
+        <View className="mt-4 min-h-[56px] justify-center">
+          {flipped ? <AnswerRow onAnswer={answer} /> : null}
+          <View className={flipped ? 'hidden' : ''}>
+            <HintPanel key={card.id} card={card} />
+          </View>
         </View>
 
         <EditCardSheet
@@ -172,26 +182,25 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
     <FlatList
       data={mastered}
       keyExtractor={(c) => c.id}
-      contentContainerStyle={styles.listPad}
+      contentContainerClassName="px-5 pb-8 pt-2"
       ListHeaderComponent={
-        <View style={styles.hero}>
-          <Text style={styles.heroBig}>{mastered.length}</Text>
-          <Text style={styles.heroText}>kelime haznende</Text>
-          <Text style={styles.heroSub}>
+        <View className="mb-5 rounded-2xl border border-border bg-card p-5">
+          <View className="flex-row items-end gap-3">
+            <Text className="font-serif text-[52px] leading-[56px]">{mastered.length}</Text>
+            <Text className="mb-2 font-sans-md text-[15px]">kelime haznende</Text>
+          </View>
+          <Text variant="muted" className="mt-2 leading-5">
             5/5 tekrarı biten kelimeler buraya gelir ve günlük çalışmada artık sorulmaz. İstediğin zaman kendini test
-            edebilirsin.
+            edebilirsin; test tekrar planını değiştirmez.
           </Text>
-          <Pressable
-            onPress={start}
-            disabled={mastered.length === 0}
-            style={[styles.btn, { alignSelf: 'stretch', marginTop: 16 }, mastered.length === 0 && { opacity: 0.4 }]}
-          >
-            <Text style={styles.btnText}>Teste başla</Text>
-          </Pressable>
+          <Button className="mt-4" onPress={start} disabled={mastered.length === 0}>
+            <Text>Teste başla</Text>
+          </Button>
         </View>
       }
-      ListEmptyComponent={<Text style={styles.empty}>Henüz 5/5 tamamlanan kelime yok.</Text>}
+      ListEmptyComponent={<Text variant="muted" className="mt-6 text-center">Henüz 5/5 tamamlanan kelime yok.</Text>}
       renderItem={({ item }) => <WordRow card={item} />}
+      ItemSeparatorComponent={() => <View className="h-px bg-border" />}
     />
   );
 }
@@ -199,38 +208,12 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
 function WordRow({ card }) {
   const misses = missCount(card);
   return (
-    <View style={styles.row}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.en}>{card.en}</Text>
-        <Text style={styles.tr}>{card.tr}</Text>
+    <View className="flex-row items-center py-3">
+      <View className="flex-1">
+        <Text variant="word">{card.en}</Text>
+        <Text variant="muted" className="mt-0.5">{card.tr}</Text>
       </View>
-      {misses > 0 ? <Text style={styles.miss}>✗ {misses}</Text> : null}
+      {misses > 0 ? <Badge variant="danger">{`${misses} hata`}</Badge> : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  listPad: { padding: 16, paddingBottom: 32 },
-  hero: { backgroundColor: C.accentSoft, borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 12 },
-  heroBig: { fontSize: 44, fontWeight: '800', color: C.accent },
-  heroText: { fontSize: 17, fontWeight: '700', color: C.ink, marginTop: 2 },
-  heroSub: { fontSize: 14, color: C.muted, textAlign: 'center', lineHeight: 20, marginTop: 8 },
-  section: { fontSize: 16, fontWeight: '700', color: C.ink, marginTop: 8, marginBottom: 8, paddingHorizontal: 4 },
-  btn: { backgroundColor: C.accent, borderRadius: 14, paddingVertical: 15, alignItems: 'center' },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  row: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 12, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: C.line },
-  en: { fontSize: 17, fontWeight: '600', color: C.ink },
-  tr: { fontSize: 15, color: C.muted, marginTop: 2 },
-  miss: { color: C.warn, backgroundColor: C.warnSoft, fontSize: 13, fontWeight: '700', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, overflow: 'hidden' },
-  empty: { textAlign: 'center', color: C.muted, marginTop: 24, fontSize: 15 },
-  wrap: { flex: 1, padding: 20 },
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  topRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  exit: { color: C.muted, fontSize: 15, fontWeight: '600' },
-  counter: { color: C.accent, backgroundColor: C.accentSoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, fontSize: 13, overflow: 'hidden' },
-  editBtn: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.line, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
-  editText: { fontSize: 13, fontWeight: '600', color: C.ink },
-  answerRow: { flexDirection: 'row', gap: 12, marginTop: 16, minHeight: 56 },
-  answerBtn: { flex: 1, paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
-  answerText: { fontSize: 17, fontWeight: '700' },
-});

@@ -31,6 +31,41 @@ export function missCount(card) {
   return miss(card.reviews) + miss(card.tests);
 }
 
+// Kelimenin toplam kaç kez sorulduğu (günlük tekrarlar + Haznem testleri)
+export function attemptCount(card) {
+  return (card.reviews || []).length + (card.tests || []).length;
+}
+
+// Hata oranı: bilinemeyen ÷ toplam deneme (0..1). Hiç sorulmadıysa 0.
+export function errorRate(card) {
+  const n = attemptCount(card);
+  return n ? missCount(card) / n : 0;
+}
+
+// En son bilinemediği gün ('YYYY-MM-DD'), hiç bilinemediyse null
+export function lastMiss(card) {
+  const dates = [...(card.reviews || []), ...(card.tests || [])].filter((r) => !r.ok).map((r) => r.date);
+  return dates.length ? dates.sort().at(-1) : null;
+}
+
+// En az bir kez bilinemeyen kelimeler, hata oranı yüksekten düşüğe.
+// Eşitlikte daha çok bilinemeyen, o da eşitse en son bilinemeyen önce gelir.
+export function hardestCards(cards) {
+  return cards
+    .filter((c) => missCount(c) > 0)
+    .map((c) => ({ card: c, rate: errorRate(c), misses: missCount(c), attempts: attemptCount(c), last: lastMiss(c) }))
+    .sort((a, b) => b.rate - a.rate || b.misses - a.misses || (b.last > a.last ? 1 : b.last < a.last ? -1 : 0));
+}
+
+// Çalışırken sırayla açılan ipuçları; kartta olmayanlar atlanır
+export function hintsOf(card) {
+  return [
+    { key: 'example', label: 'Cümle', text: card.example },
+    { key: 'synonyms', label: 'Eş anlamlı', text: card.synonyms },
+    { key: 'antonyms', label: 'Zıt anlamlı', text: card.antonyms },
+  ].filter((h) => h.text && h.text.trim());
+}
+
 // Haznem testi tekrar planını değiştirmez, sadece sonucu kaydeder
 export function recordTest(card, ok, today = todayStr()) {
   return { ...card, tests: [...(card.tests || []), { date: today, ok }] };

@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Kâğıt, mürekkep ve fosforlu kalem: kelime kartı fikrinden gelen sade bir palet.
+   src/theme.js içindeki COLORS ile aynı tutulmalı. */
+:root {
+  --background: 244 241 234;
+  --foreground: 28 27 24;
+  --card: 255 253 248;
+  --muted: 234 229 218;
+  --muted-foreground: 112 107 97;
+  --border: 224 218 205;
+  --input: 210 203 188;
+  --primary: 28 27 24;
+  --primary-foreground: 250 248 242;
+  --accent: 46 94 74;
+  --accent-soft: 221 233 224;
+  --danger: 178 69 44;
+  --danger-soft: 245 226 218;
+  --highlight: 246 220 110;
+  --highlight-foreground: 74 60 10;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 22 21 19;
+    --foreground: 236 231 219;
+    --card: 31 30 27;
+    --muted: 42 40 36;
+    --muted-foreground: 160 154 142;
+    --border: 52 50 45;
+    --input: 72 69 62;
+    --primary: 236 231 219;
+    --primary-foreground: 22 21 19;
+    --accent: 124 184 152;
+    --accent-soft: 33 50 42;
+    --danger: 232 124 98;
+    --danger-soft: 62 35 28;
+    --highlight: 222 193 82;
+    --highlight-foreground: 34 28 6;
+  }
+}

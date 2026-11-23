@@ -1,12 +1,26 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-import { C } from '../theme';
+import { Animated, View } from 'react-native';
+import { Pencil } from 'lucide-react-native';
 import { isDue, todayStr, STAGE_LABELS } from '../dates';
 import { markKnown, markUnknown } from '../srs';
+import { useColors } from '../theme';
 import FlipCard from '../components/FlipCard';
+import HintPanel from '../components/HintPanel';
+import AnswerRow from '../components/AnswerRow';
 import EditCardSheet from '../components/EditCardSheet';
+import { Button } from '../components/ui/button';
+import { Text } from '../components/ui/text';
+
+export function ProgressBar({ value }) {
+  return (
+    <View className="h-1 overflow-hidden rounded-full bg-muted">
+      <View className="h-full rounded-full bg-foreground" style={{ width: `${Math.round(value * 100)}%` }} />
+    </View>
+  );
+}
 
 export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRemoveTopic }) {
+  const colors = useColors();
   const today = todayStr();
   const dueIds = useMemo(() => cards.filter((c) => isDue(c, today)).map((c) => c.id), [cards, today]);
 
@@ -18,7 +32,6 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
     [cards, today]
   );
   const [flipped, setFlipped] = useState(false);
-  const [showHint, setShowHint] = useState(false);
   const [editing, setEditing] = useState(false);
   const anim = useRef(new Animated.Value(0)).current;
 
@@ -31,7 +44,6 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
 
   const reset = () => {
     setFlipped(false);
-    setShowHint(false);
     anim.setValue(0);
   };
 
@@ -49,9 +61,11 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
 
   if (!card) {
     return (
-      <View style={styles.empty}>
-        <Text style={styles.emptyTitle}>{doneCount > 0 ? 'Bugünlük bitti 🎉' : 'Bugün tekrar yok'}</Text>
-        <Text style={styles.emptyText}>
+      <View className="flex-1 items-center justify-center px-10">
+        <Text className="mb-2 text-center font-serif text-[30px] leading-9">
+          {doneCount > 0 ? 'Bugünlük bitti.' : 'Bugün tekrar yok.'}
+        </Text>
+        <Text variant="muted" className="text-center text-[15px] leading-[22px]">
           {doneCount > 0
             ? `${doneCount} kelimeyi tekrar ettin. Yarın görüşürüz.`
             : 'Yeni kelime ekle; eklediğin kelimeler ertesi gün buraya gelir.'}
@@ -60,48 +74,34 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
     );
   }
 
+  const total = doneCount + queue.length;
+
   return (
-    <View style={styles.wrap}>
-      <View style={styles.topRow}>
-        <Text style={styles.counter}>Kalan: {queue.length}</Text>
-        <View style={styles.topRight}>
+    <View className="flex-1 px-5 pb-4 pt-2">
+      <View className="mb-4 gap-2.5">
+        <View className="flex-row items-center justify-between">
+          <Text variant="label">
+            <Text className="font-sans-sb text-[13px] text-foreground">{queue.length}</Text> kaldı
+          </Text>
           {flipped ? (
-            <Pressable onPress={() => setEditing(true)} hitSlop={8} style={styles.editBtn}>
-              <Text style={styles.editText}>✏️ Düzenle</Text>
-            </Pressable>
+            <Button variant="ghost" size="sm" className="-my-2 -mr-2" onPress={() => setEditing(true)}>
+              <Pencil size={14} color={colors.mutedForeground} />
+              <Text className="font-sans-md text-[13px] text-muted-foreground">Düzenle</Text>
+            </Button>
           ) : null}
-          <Text style={styles.badge}>{STAGE_LABELS[card.stage]} tekrarı</Text>
         </View>
+        <ProgressBar value={total ? doneCount / total : 0} />
       </View>
 
-      <FlipCard card={card} anim={anim} onPress={flip} />
+      <FlipCard card={card} anim={anim} onPress={flip} topRight={`${STAGE_LABELS[card.stage]} tekrarı`} />
 
-      {!flipped && (
-        <View style={styles.hintArea}>
-          {showHint ? (
-            <View style={styles.hintBox}>
-              <Text style={styles.hintText}>{card.example ? `“${card.example}”` : 'Bu kelime için örnek cümle eklenmemiş.'}</Text>
-            </View>
-          ) : (
-            <Pressable onPress={() => setShowHint(true)} style={styles.hintBtn}>
-              <Text style={styles.hintBtnText}>💡 İpucu</Text>
-            </Pressable>
-          )}
+      <View className="mt-4 min-h-[56px] justify-center">
+        {flipped ? <AnswerRow onAnswer={answer} /> : null}
+        {/* Kart çevrilince ipuçları gizlenir ama açılan ipuçları kaybolmaz */}
+        <View className={flipped ? 'hidden' : ''}>
+          <HintPanel key={card.id} card={card} />
         </View>
-      )}
-
-      {flipped ? (
-        <View style={styles.answerRow}>
-          <Pressable onPress={() => answer(false)} style={[styles.answerBtn, { backgroundColor: C.warnSoft }]}>
-            <Text style={[styles.answerText, { color: C.warn }]}>Bilemedim</Text>
-          </Pressable>
-          <Pressable onPress={() => answer(true)} style={[styles.answerBtn, { backgroundColor: C.accent }]}>
-            <Text style={[styles.answerText, { color: '#fff' }]}>Bildim</Text>
-          </Pressable>
-        </View>
-      ) : (
-        <View style={styles.answerRow} />
-      )}
+      </View>
 
       <EditCardSheet
         card={editing ? card : null}
@@ -115,24 +115,3 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: { flex: 1, padding: 20 },
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  counter: { color: C.muted, fontSize: 15 },
-  badge: { color: C.accent, backgroundColor: C.accentSoft, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, fontSize: 13, overflow: 'hidden' },
-  topRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  editBtn: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.line, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
-  editText: { fontSize: 13, fontWeight: '600', color: C.ink },
-  hintArea: { minHeight: 70, justifyContent: 'center', marginTop: 16 },
-  hintBtn: { alignSelf: 'center', backgroundColor: C.hintSoft, paddingHorizontal: 22, paddingVertical: 12, borderRadius: 24 },
-  hintBtnText: { color: C.hint, fontSize: 16, fontWeight: '600' },
-  hintBox: { backgroundColor: C.hintSoft, borderRadius: 14, padding: 14 },
-  hintText: { color: C.hint, fontSize: 16, fontStyle: 'italic', textAlign: 'center' },
-  answerRow: { flexDirection: 'row', gap: 12, marginTop: 12, minHeight: 56 },
-  answerBtn: { flex: 1, paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
-  answerText: { fontSize: 17, fontWeight: '700' },
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
-  emptyTitle: { fontSize: 24, fontWeight: '700', color: C.ink, marginBottom: 8 },
-  emptyText: { fontSize: 16, color: C.muted, textAlign: 'center', lineHeight: 22 },
-});

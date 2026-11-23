@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { C } from '../theme';
+import { Pressable, View } from 'react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { formatMonth, monthKey, toStr } from '../dates';
+import { useColors } from '../theme';
+import { cn } from '../lib/utils';
+import { Text } from './ui/text';
 
 const DAY_NAMES = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
@@ -13,6 +16,7 @@ function shiftMonth(key, n) {
 // Ay ızgarası (pazartesiden başlar). Her günün altında o gün eklenen kelime sayısı yazar.
 // counts: { 'YYYY-MM-DD': n }
 export default function CalendarView({ counts, selected, onSelect, today }) {
+  const colors = useColors();
   const [month, setMonth] = useState(monthKey(selected || today));
 
   const [y, m] = month.split('-').map(Number);
@@ -29,36 +33,44 @@ export default function CalendarView({ counts, selected, onSelect, today }) {
     .reduce((s, [, n]) => s + n, 0);
 
   return (
-    <View style={styles.box}>
-      <View style={styles.nav}>
-        <Pressable onPress={() => setMonth(shiftMonth(month, -1))} hitSlop={10} style={styles.navBtn}>
-          <Text style={styles.navText}>‹</Text>
+    <View className="mt-3 rounded-2xl border border-border bg-card p-3">
+      <View className="flex-row items-center justify-between pb-2">
+        <Pressable onPress={() => setMonth(shiftMonth(month, -1))} hitSlop={10} className="h-9 w-9 items-center justify-center rounded-full active:bg-muted">
+          <ChevronLeft size={20} color={colors.foreground} />
         </Pressable>
-        <View style={{ alignItems: 'center' }}>
-          <Text style={styles.month}>{formatMonth(month)}</Text>
-          <Text style={styles.monthSub}>{monthTotal} kelime</Text>
+        <View className="items-center">
+          <Text className="font-serif text-[19px]">{formatMonth(month)}</Text>
+          <Text variant="small">{monthTotal} kelime</Text>
         </View>
-        <Pressable onPress={() => setMonth(shiftMonth(month, 1))} hitSlop={10} style={styles.navBtn}>
-          <Text style={styles.navText}>›</Text>
+        <Pressable onPress={() => setMonth(shiftMonth(month, 1))} hitSlop={10} className="h-9 w-9 items-center justify-center rounded-full active:bg-muted">
+          <ChevronRight size={20} color={colors.foreground} />
         </Pressable>
       </View>
 
-      <View style={styles.grid}>
+      <View className="flex-row flex-wrap">
         {DAY_NAMES.map((d) => (
-          <View key={d} style={styles.cell}>
-            <Text style={styles.dayName}>{d}</Text>
+          <View key={d} style={{ width: `${100 / 7}%` }} className="py-1">
+            <Text variant="small" className="text-center font-sans-md">{d}</Text>
           </View>
         ))}
         {cells.map((date, i) => {
-          if (!date) return <View key={`e${i}`} style={styles.cell} />;
+          if (!date) return <View key={`e${i}`} style={{ width: `${100 / 7}%` }} />;
           const n = counts[date] || 0;
           const isSel = date === selected;
           const isToday = date === today;
           return (
-            <Pressable key={date} onPress={() => onSelect(isSel ? null : date)} style={styles.cell}>
-              <View style={[styles.day, n > 0 && styles.dayHas, isToday && styles.dayToday, isSel && styles.daySel]}>
-                <Text style={[styles.dayNum, isSel && { color: '#fff' }]}>{Number(date.slice(8))}</Text>
-                <Text style={[styles.dayCount, isSel && { color: '#fff' }]}>{n > 0 ? `+${n}` : ' '}</Text>
+            <Pressable key={date} onPress={() => onSelect(isSel ? null : date)} style={{ width: `${100 / 7}%` }} className="p-0.5">
+              <View
+                className={cn(
+                  'items-center rounded-lg border py-1.5',
+                  isSel ? 'border-primary bg-primary' : isToday ? 'border-foreground' : 'border-transparent',
+                  !isSel && n > 0 && 'bg-accent-soft'
+                )}
+              >
+                <Text className={cn('font-sans-md text-[15px]', isSel && 'text-primary-foreground')}>{Number(date.slice(8))}</Text>
+                <Text className={cn('font-sans-sb text-[10px]', isSel ? 'text-primary-foreground' : 'text-accent')}>
+                  {n > 0 ? `+${n}` : ' '}
+                </Text>
               </View>
             </Pressable>
           );
@@ -67,21 +79,3 @@ export default function CalendarView({ counts, selected, onSelect, today }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  box: { backgroundColor: C.surface, borderRadius: 14, borderWidth: 1, borderColor: C.line, padding: 10, marginBottom: 8 },
-  nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 6, paddingBottom: 8 },
-  navBtn: { paddingHorizontal: 12, paddingVertical: 2 },
-  navText: { fontSize: 28, color: C.accent, fontWeight: '600' },
-  month: { fontSize: 17, fontWeight: '700', color: C.ink },
-  monthSub: { fontSize: 12, color: C.muted, marginTop: 1 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: `${100 / 7}%`, padding: 2 },
-  dayName: { textAlign: 'center', fontSize: 12, color: C.muted, fontWeight: '600', paddingVertical: 4 },
-  day: { borderRadius: 10, paddingVertical: 6, alignItems: 'center', borderWidth: 1.5, borderColor: 'transparent' },
-  dayHas: { backgroundColor: C.accentSoft },
-  dayToday: { borderColor: C.accent },
-  daySel: { backgroundColor: C.accent, borderColor: C.accent },
-  dayNum: { fontSize: 15, fontWeight: '600', color: C.ink },
-  dayCount: { fontSize: 11, fontWeight: '700', color: C.accent, marginTop: 1 },
-});
