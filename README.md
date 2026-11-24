@@ -1,41 +1,49 @@
-# Kelime Kartları
+<p align="center">
+  <img src="assets/logo.svg" width="96" alt="Kelime Kartları logosu">
+</p>
 
-**Kendi kelimelerini ekle, unutmadan önce tekrar et.**
+<h1 align="center">Kelime Kartları</h1>
 
-Dizide, kitapta, haberde karşına çıkan İngilizce kelimeleri kaydettiğin ve *aralıklı tekrar* (spaced repetition) yöntemiyle 1. gün, 3. gün, 1. hafta, 2. hafta ve 1. ayda yeniden sorduğu bir mobil uygulama. Hesap yok, sunucu yok, reklam yok: her şey telefonunda kalır.
+<p align="center"><strong>Kendi kelimelerini ekle, unutmadan önce tekrar et.</strong></p>
+
+Dizide, kitapta, haberde karşına çıkan yabancı kelimeleri (İngilizce, Almanca, Fransızca, İspanyolca…) kaydettiğin ve *aralıklı tekrar* (spaced repetition) yöntemiyle 1. gün, 3. gün, 1. hafta, 2. hafta ve 1. ayda yeniden sorduğu bir mobil uygulama. Hesap yok, sunucu yok, reklam yok: her şey telefonunda kalır.
 
 ![React Native](https://img.shields.io/badge/React_Native-0.86-1C1B18?logo=react&logoColor=white)
 ![Expo](https://img.shields.io/badge/Expo-SDK_57-1C1B18?logo=expo&logoColor=white)
 ![NativeWind](https://img.shields.io/badge/NativeWind-Tailwind-1C1B18?logo=tailwindcss&logoColor=white)
-![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-2E5E4A)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-1F3A5F)
 
 <p align="center">
-  <img src="docs/screenshots/calis-ipucu.jpg" width="200" alt="Çalış ekranı: kartın ön yüzü ve sırayla açılan ipuçları">
-  <img src="docs/screenshots/calis-arka.jpg" width="200" alt="Kartın arka yüzü: anlam, tür, örnek cümle, eş ve zıt anlamlılar">
-  <img src="docs/screenshots/zorlandiklarim.jpg" width="200" alt="Zorlandıklarım: hata oranına göre sıralı liste">
+  <img src="docs/screenshots/calis-ipucu.jpg" width="180" alt="Çalış ekranı: kartın ön yüzü ve sırayla açılan ipuçları">
+  <img src="docs/screenshots/calis-arka.jpg" width="180" alt="Kartın arka yüzü: anlam, tür, örnek cümle, eş ve zıt anlamlılar">
+  <img src="docs/screenshots/zorlandiklarim.jpg" width="180" alt="Zorlandıklarım: hata oranına göre sıralı liste">
+  <img src="docs/screenshots/haznem.jpg" width="180" alt="Kelime Haznem: 5/5 tekrarı biten kelimeler">
 </p>
 <p align="center">
-  <img src="docs/screenshots/ekle.jpg" width="200" alt="Kelime ekleme formu, ayrıntılar bölümü açık">
-  <img src="docs/screenshots/takvim.jpg" width="200" alt="Kelimelerim: takvim görünümü">
-  <img src="docs/screenshots/koyu.jpg" width="200" alt="Koyu tema">
+  <img src="docs/screenshots/ekle.jpg" width="180" alt="Kelime ekleme formu, ayrıntılar bölümü açık">
+  <img src="docs/screenshots/takvim.jpg" width="180" alt="Kelimelerim: takvim görünümü">
+  <img src="docs/screenshots/ayarlar.jpg" width="180" alt="Ayarlar: tema, çalışılan dil ve yedek">
+  <img src="docs/screenshots/koyu.jpg" width="180" alt="Koyu tema">
 </p>
-<p align="center"><sub>Çalış ve ipuçları · Kartın arkası · Zorlandıklarım · Ekle · Takvim · Koyu tema</sub></p>
+<p align="center"><sub>Çalış ve ipuçları · Kartın arkası · Zorlandıklarım · Haznem · Ekle · Takvim · Ayarlar · Koyu tema</sub></p>
 
 ---
 
 ## Özellikler
 
-**Çalış.** Tarihi gelen kelimeler çevrilebilir kartlarla sorulur; kartın önünde İngilizcesi, arkasında anlamı, türü, örnek cümlesi ve eş/zıt anlamlıları vardır. Takılırsan ipucu butonuna her basışta bir ipucu daha açılır: önce **örnek cümle**, sonra **eş anlamlı**, sonra **zıt anlamlı**. Kartta olmayan ipucu atlanır.
+**Çalış.** Tarihi gelen kelimeler çevrilebilir kartlarla sorulur; kartın önünde kelimenin kendisi, arkasında anlamı, türü, örnek cümlesi ve eş/zıt anlamlıları vardır. Takılırsan ipucu butonuna her basışta bir ipucu daha açılır: önce **örnek cümle**, sonra **eş anlamlı**, sonra **zıt anlamlı**. Kartta olmayan ipucu atlanır.
 
 **Zorlandıklarım.** En az bir kez bilinemeyen kelimeler *hata oranına* göre sıralanır (bilinemediği sayı ÷ kaç kez sorulduğu). Burada cevap verilmez, tekrar planı değişmez; sadece bakıp çalışmak içindir. İstersen anlamları gizleyip dokundukça tek tek açarak kendini yoklayabilirsin.
 
-**Ekle.** İngilizce, Türkçe, tür ve konu tek ekranda. Örnek cümle, eş/zıt anlamlılar ve "nerede gördün" katlanır *Ayrıntılar* bölümünde durur; bir kez açınca açık kalır. Aynı kelimeyi ikinci kez eklemeye çalışırsan uyarır. Klavye açıkken alanlar kapanmaz.
+**Ekle.** Kelime, Türkçe anlamı, tür ve konu tek ekranda. Örnek cümle, eş/zıt anlamlılar ve "nerede gördün" katlanır *Ayrıntılar* bölümünde durur; bir kez açınca açık kalır. Aynı kelimeyi ikinci kez eklemeye çalışırsan uyarır. Klavye açıkken alanlar kapanmaz.
 
-**Kelimelerim.** Gün, hafta, ay ya da takvim görünümü. Takvimde her günün altında o gün kaç kelime eklediğin yazar. İngilizce, Türkçe, örnek cümle ve eş/zıt anlamlılarda arama yapar; büyük/küçük harf ve ı/i, ö/o farkına takılmaz.
+**Kelimelerim.** Gün, hafta, ay ya da takvim görünümü. Takvimde her günün altında o gün kaç kelime eklediğin yazar. Uzun listeler 30'ar 30'ar yüklenir, binlerce kelimede de akıcı kalır. Kelimede, anlamda, örnek cümlede ve eş/zıt anlamlılarda arama yapar; büyük/küçük harf ve ı/i, ö/o farkına takılmaz.
 
 **Kelime Haznem.** 5/5 tekrarı biten kelimeler günlük çalışmadan çıkıp buraya geçer. İstediğin zaman hepsiyle karışık bir test yapabilirsin.
 
-**Ayrıca:** Her yerden düzenleme (düzenlemek tekrar planını bozmaz) · tek dosyayla yedek ve geri yükleme · Ayarlar'dan açık/koyu/sistem teması ve çalışılan dil seçimi · uzun listelerde sayfa sayfa yükleme.
+**Ayarlar.** Sağ üstteki dişliden açılır. Tema (sistem, açık, koyu), çalıştığın dil (İngilizce, Almanca, Fransızca, İspanyolca, İtalyanca, Rusça, Arapça, Japonca, Korece) ve yedek burada. Dil seçimi kartlardaki etiketleri ve formdaki örnekleri değiştirir; kayıtlı kelimelerine dokunmaz.
+
+**Ayrıca:** Her yerden düzenleme (düzenlemek tekrar planını bozmaz) · tek dosyayla yedek ve geri yükleme · hesap ve internet gerektirmeyen, telefondaki SQLite veritabanı.
 
 ## Tekrar nasıl çalışıyor?
 
@@ -60,6 +68,8 @@ flowchart LR
 ## Tasarım
 
 Uygulama bir dizin kartı fikrinden yola çıkar: kâğıt rengi zemin, mürekkep siyahı yazı, kartın üstünde ince kırmızı çizgi ve ipuçlarında fosforlu kalem sarısı. Kelimeler sözlük havası veren tırnaklı [Newsreader](https://fonts.google.com/specimen/Newsreader), arayüz [Instrument Sans](https://fonts.google.com/specimen/Instrument+Sans) ile yazılır.
+
+Logo da aynı fikirden gelir: gece mavisi zeminde, "Aa" yazısının altı fosforlu kalemle çizilmiş eğik bir kelime kartı. Ana çizim [`assets/logo.svg`](assets/logo.svg); uygulama ikonları (Android uyarlanabilir ikon katmanları, tek renkli tema ikonu, favicon) bundan üretilmiştir.
 
 Renkler [`global.css`](global.css) içinde CSS değişkenleri olarak tanımlıdır (açık ve koyu tema). `className` kullanılamayan yerler (ikon rengi, placeholder) için aynı değerler [`src/theme.js`](src/theme.js) içinde de durur; birini değiştirirsen ötekini de değiştir.
 
