@@ -82,5 +82,6 @@ export default function FlipCard({ card, anim, onPress, topRight }) {
 }
 
 const styles = StyleSheet.create({
-  face: { ...StyleSheet.absoluteFillObject, backfaceVisibility: 'hidden' },
+  // StyleSheet.absoluteFillObject React Native 0.86'da yok (web'de hâlâ var); değerler açıkça yazılır
+  face: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backfaceVisibility: 'hidden' },
 });
