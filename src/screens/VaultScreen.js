@@ -12,6 +12,8 @@ import { ProgressBar } from './StudyScreen';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Text } from '../components/ui/text';
+import { PagedFooter, pagedListProps, usePaged } from '../lib/usePaged';
+import { useSettings } from '../settings';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -27,10 +29,12 @@ function shuffle(arr) {
 export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRemoveTopic }) {
   const colors = useColors();
   const today = todayStr();
+  const { lang } = useSettings();
   const mastered = useMemo(
-    () => cards.filter(isMastered).sort((a, b) => a.en.localeCompare(b.en, 'en')),
-    [cards]
+    () => cards.filter(isMastered).sort((a, b) => a.en.localeCompare(b.en, lang.key)),
+    [cards, lang.key]
   );
+  const paged = usePaged(mastered);
 
   const [queue, setQueue] = useState(null); // null → test yok
   const [results, setResults] = useState([]); // [{ id, ok }]
@@ -180,8 +184,10 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
   // ---- Haznem listesi ----
   return (
     <FlatList
-      data={mastered}
+      data={paged.visible}
       keyExtractor={(c) => c.id}
+      {...pagedListProps(paged)}
+      ListFooterComponent={<PagedFooter paged={paged} />}
       contentContainerClassName="px-5 pb-8 pt-2"
       ListHeaderComponent={
         <View className="mb-5 rounded-2xl border border-border bg-card p-5">

@@ -9,6 +9,7 @@ import { WORD_TYPES } from '../components/CardForm';
 import EditCardSheet from '../components/EditCardSheet';
 import CalendarView from '../components/CalendarView';
 import { Badge } from '../components/ui/badge';
+import { PagedFooter, pagedListProps, usePaged } from '../lib/usePaged';
 import { Button } from '../components/ui/button';
 import { Text } from '../components/ui/text';
 
@@ -73,24 +74,39 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
     return m;
   }, [cards]);
 
-  const sections = useMemo(() => {
+  // Görünüme göre süzülmüş, yeniden eskiye sıralı düz liste
+  const flat = useMemo(() => {
     const sorted = [...cards].sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0));
-    if (q) {
-      const data = sorted.filter((c) => matches(c, q));
-      return data.length ? [{ key: 'search', title: 'Arama sonuçları', data }] : [];
-    }
-    if (mode === 'cal') {
-      const data = calDay ? sorted.filter((c) => c.createdAt === calDay) : [];
-      return data.length ? [{ key: calDay, title: formatDay(calDay), data }] : [];
-    }
+    if (q) return sorted.filter((c) => matches(c, q));
+    if (mode === 'cal') return calDay ? sorted.filter((c) => c.createdAt === calDay) : [];
+    return sorted;
+  }, [cards, mode, q, calDay]);
+
+  const paged = usePaged(flat, `${mode}|${q}|${calDay}`);
+
+  // Başlıktaki sayı, grubun henüz yüklenmemiş kısmını da sayar
+  const groupTotals = useMemo(() => {
+    const m = {};
+    if (!q && mode !== 'cal') flat.forEach((c) => {
+      const k = groupKey(mode, c.createdAt);
+      m[k] = (m[k] || 0) + 1;
+    });
+    return m;
+  }, [flat, mode, q]);
+
+  const sections = useMemo(() => {
+    const data = paged.visible;
+    if (!data.length) return [];
+    if (q) return [{ key: 'search', title: 'Arama sonuçları', data, total: flat.length }];
+    if (mode === 'cal') return [{ key: calDay, title: formatDay(calDay), data, total: flat.length }];
     const map = new Map();
-    sorted.forEach((c) => {
+    data.forEach((c) => {
       const k = groupKey(mode, c.createdAt);
       if (!map.has(k)) map.set(k, []);
       map.get(k).push(c);
     });
-    return [...map.entries()].map(([k, data]) => ({ key: k, title: groupTitle(mode, k), data }));
-  }, [cards, mode, q, calDay]);
+    return [...map.entries()].map(([k, d]) => ({ key: k, title: groupTitle(mode, k), data: d, total: groupTotals[k] }));
+  }, [paged.visible, flat.length, groupTotals, mode, q, calDay]);
 
   const confirmDelete = (card) => {
     Alert.alert('Kartı sil', `“${card.en}” silinsin mi?`, [
@@ -149,6 +165,8 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 32 }}
         stickySectionHeadersEnabled={false}
         keyboardShouldPersistTaps="handled"
+        {...pagedListProps(paged)}
+        ListFooterComponent={<PagedFooter paged={paged} />}
         ListHeaderComponent={
           !q && mode === 'cal' ? <CalendarView counts={counts} selected={calDay} onSelect={setCalDay} today={today} /> : null
         }
@@ -156,7 +174,7 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
         renderSectionHeader={({ section }) => (
           <View className="mb-1 mt-5 flex-row items-baseline justify-between">
             <Text variant="overline" className="text-foreground">{section.title}</Text>
-            <Text variant="small">{section.data.length} kelime</Text>
+            <Text variant="small">{section.total ?? section.data.length} kelime</Text>
           </View>
         )}
         ItemSeparatorComponent={() => <View className="h-px bg-border" />}

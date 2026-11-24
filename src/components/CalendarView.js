@@ -27,6 +27,8 @@ export default function CalendarView({ counts, selected, onSelect, today }) {
   for (let i = 0; i < lead; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(`${month}-${String(d).padStart(2, '0')}`);
   while (cells.length % 7) cells.push(null);
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
   const monthTotal = Object.entries(counts)
     .filter(([d]) => d.startsWith(month))
@@ -47,35 +49,40 @@ export default function CalendarView({ counts, selected, onSelect, today }) {
         </Pressable>
       </View>
 
-      <View className="flex-row flex-wrap">
+      {/* Yüzde genişlik (100/7 %) Android'de yuvarlanıp satırı 6 güne düşürüyordu; satırlar ayrı ayrı çizilir */}
+      <View className="flex-row">
         {DAY_NAMES.map((d) => (
-          <View key={d} style={{ width: `${100 / 7}%` }} className="py-1">
+          <View key={d} className="flex-1 py-1">
             <Text variant="small" className="text-center font-sans-md">{d}</Text>
           </View>
         ))}
-        {cells.map((date, i) => {
-          if (!date) return <View key={`e${i}`} style={{ width: `${100 / 7}%` }} />;
-          const n = counts[date] || 0;
-          const isSel = date === selected;
-          const isToday = date === today;
-          return (
-            <Pressable key={date} onPress={() => onSelect(isSel ? null : date)} style={{ width: `${100 / 7}%` }} className="p-0.5">
-              <View
-                className={cn(
-                  'items-center rounded-lg border py-1.5',
-                  isSel ? 'border-primary bg-primary' : isToday ? 'border-foreground' : 'border-transparent',
-                  !isSel && n > 0 && 'bg-accent-soft'
-                )}
-              >
-                <Text className={cn('font-sans-md text-[15px]', isSel && 'text-primary-foreground')}>{Number(date.slice(8))}</Text>
-                <Text className={cn('font-sans-sb text-[10px]', isSel ? 'text-primary-foreground' : 'text-accent')}>
-                  {n > 0 ? `+${n}` : ' '}
-                </Text>
-              </View>
-            </Pressable>
-          );
-        })}
       </View>
+      {weeks.map((week, w) => (
+        <View key={w} className="flex-row">
+          {week.map((date, i) => {
+            if (!date) return <View key={`e${i}`} className="flex-1" />;
+            const n = counts[date] || 0;
+            const isSel = date === selected;
+            const isToday = date === today;
+            return (
+              <Pressable key={date} onPress={() => onSelect(isSel ? null : date)} className="flex-1 p-0.5">
+                <View
+                  className={cn(
+                    'items-center rounded-lg border py-1.5',
+                    isSel ? 'border-primary bg-primary' : isToday ? 'border-foreground' : 'border-transparent',
+                    !isSel && n > 0 && 'bg-accent-soft'
+                  )}
+                >
+                  <Text className={cn('font-sans-md text-[15px]', isSel && 'text-primary-foreground')}>{Number(date.slice(8))}</Text>
+                  <Text className={cn('font-sans-sb text-[10px]', isSel ? 'text-primary-foreground' : 'text-accent')}>
+                    {n > 0 ? `+${n}` : ' '}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+      ))}
     </View>
   );
 }

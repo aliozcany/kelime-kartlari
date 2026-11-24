@@ -3,6 +3,7 @@ import { Alert, Pressable, ScrollView, useWindowDimensions, View } from 'react-n
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChevronDown, TriangleAlert } from 'lucide-react-native';
 import { useColors } from '../theme';
+import { useSettings } from '../settings';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 import { Chip } from './ui/chip';
@@ -21,7 +22,7 @@ export const WORD_TYPES = [
 // "Ayrıntılar" bölümü bir kez açılınca sonraki açılışlarda da açık kalır
 const DETAILS_KEY = 'kelime-kartlari:form-details-open';
 
-// Aynı İngilizce kelime (büyük/küçük harf ve boşluk farkı gözetmeden) başka bir kartta var mı
+// Aynı kelime (büyük/küçük harf ve boşluk farkı gözetmeden) başka bir kartta var mı
 export function findDuplicate(cards, en, exceptId) {
   const k = en.trim().toLowerCase();
   if (!k) return null;
@@ -45,6 +46,8 @@ function Field({ label, hint, className, children }) {
 //       'edit' → initial kartın alanlarıyla açılır
 export default function CardForm({ mode = 'add', initial, cards, topics, onAddTopic, onRemoveTopic, onSubmit }) {
   const colors = useColors();
+  const { lang } = useSettings();
+  const sample = lang.sample;
   const { width } = useWindowDimensions();
   const wide = width >= 640; // tablet: alanlar iki sütun
   const isEdit = mode === 'edit';
@@ -143,7 +146,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
   return (
     <View className="gap-4">
       <View className={row}>
-        <Field label="İngilizce" className={wide ? 'flex-1' : ''}>
+        <Field label={lang.label} className={wide ? 'flex-1' : ''}>
           <Input
             ref={enRef}
             value={en}
@@ -151,7 +154,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
               setEn(t);
               setMsg('');
             }}
-            placeholder="reluctant"
+            placeholder={sample.word}
             autoCapitalize="none"
             returnKeyType="next"
             submitBehavior="submit"
@@ -164,7 +167,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
             ref={trRef}
             value={tr}
             onChangeText={setTr}
-            placeholder="isteksiz, gönülsüz"
+            placeholder={sample.meaning}
             returnKeyType="done"
             onSubmitEditing={submit}
           />
@@ -235,17 +238,17 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
               <Input
                 value={example}
                 onChangeText={setExample}
-                placeholder="She was reluctant to leave the party."
+                placeholder={sample.example}
                 multiline
                 className="font-serif-i text-[17px]"
               />
             </Field>
             <View className="flex-row gap-3">
               <Field label="Eş anlamlı" className="flex-1">
-                <Input value={synonyms} onChangeText={setSynonyms} placeholder="unwilling" autoCapitalize="none" />
+                <Input value={synonyms} onChangeText={setSynonyms} placeholder={sample.syn} autoCapitalize="none" />
               </Field>
               <Field label="Zıt anlamlı" className="flex-1">
-                <Input value={antonyms} onChangeText={setAntonyms} placeholder="eager" autoCapitalize="none" />
+                <Input value={antonyms} onChangeText={setAntonyms} placeholder={sample.ant} autoCapitalize="none" />
               </Field>
             </View>
             <Field label="Nerede gördün">

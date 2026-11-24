@@ -1,6 +1,7 @@
 import React from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { formatDay } from '../dates';
+import { useSettings } from '../settings';
 import { missCount } from '../srs';
 import { WORD_TYPES } from './CardForm';
 import { Badge } from './ui/badge';
@@ -30,18 +31,19 @@ function Rel({ label, text }) {
   );
 }
 
-// Önü İngilizce, arkası Türkçe ve ayrıntılar olan çevrilebilir kart.
+// Önü çalışılan dilde, arkası Türkçe ve ayrıntılar olan çevrilebilir kart.
 // anim: 0 → ön yüz, 1 → arka yüz (sahibi bileşen yönetir)
 export default function FlipCard({ card, anim, onPress, topRight }) {
   const frontRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
   const misses = missCount(card);
+  const { lang } = useSettings();
 
   return (
     <Pressable onPress={onPress} className="max-h-[440px] flex-1">
       <Animated.View style={[styles.face, { transform: [{ perspective: 1200 }, { rotateY: frontRot }] }]}>
         <View className="flex-1 overflow-hidden rounded-3xl border border-border bg-card">
-          <CardTop label="İngilizce" right={topRight} />
+          <CardTop label={lang.label} right={topRight} />
           <View className="flex-1 items-center justify-center px-6">
             <Text className="text-center font-serif text-[42px] leading-[50px]" adjustsFontSizeToFit numberOfLines={2}>
               {card.en}

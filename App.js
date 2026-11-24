@@ -1,5 +1,5 @@
 import './src/lib/interop';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, AppState, Pressable, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -13,18 +13,19 @@ import { InstrumentSans_700Bold } from '@expo-google-fonts/instrument-sans/700Bo
 import { Newsreader_400Regular_Italic } from '@expo-google-fonts/newsreader/400Regular_Italic';
 import { Newsreader_500Medium } from '@expo-google-fonts/newsreader/500Medium';
 import { Newsreader_600SemiBold } from '@expo-google-fonts/newsreader/600SemiBold';
-import { BookOpen, HardDriveDownload, Library, Plus, Target, Trophy } from 'lucide-react-native';
+import { BookOpen, Library, Plus, Settings, Target, Trophy } from 'lucide-react-native';
 
 import { useColors } from './src/theme';
 import { cn } from './src/lib/utils';
-import { loadCards, loadTopics, saveCards, saveTopics } from './src/storage';
+import * as db from './src/storage';
 import { formatDay, isDue, todayStr } from './src/dates';
 import StudyScreen from './src/screens/StudyScreen';
 import AddScreen from './src/screens/AddScreen';
 import ListScreen from './src/screens/ListScreen';
 import HardScreen from './src/screens/HardScreen';
 import VaultScreen from './src/screens/VaultScreen';
-import BackupSheet from './src/components/BackupSheet';
+import SettingsSheet from './src/components/SettingsSheet';
+import { SettingsProvider, useSettings } from './src/settings';
 import { Button } from './src/components/ui/button';
 import { Text } from './src/components/ui/text';
 
@@ -37,6 +38,15 @@ const TABS = [
 ];
 
 export default function App() {
+  return (
+    <SettingsProvider>
+      <Main />
+    </SettingsProvider>
+  );
+}
+
+function Main() {
+  const { ready } = useSettings();
   const scheme = useColorScheme();
   const colors = useColors();
   const [fontsLoaded] = useFonts({
@@ -51,11 +61,11 @@ export default function App() {
   const [cards, setCards] = useState(null);
   const [topics, setTopics] = useState([]);
   const [tab, setTab] = useState('study');
-  const [backupOpen, setBackupOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [, setTick] = useState(0); // gün değişince ekranı tazelemek için
 
   useEffect(() => {
-    Promise.all([loadCards(), loadTopics()]).then(([cs, ts]) => {
+    db.loadAll().then(({ cards: cs, topics: ts }) => {
       setTopics(ts);
       setCards(cs);
     });
@@ -63,46 +73,41 @@ export default function App() {
     return () => sub.remove();
   }, []);
 
-  const update = useCallback((fn) => {
-    setCards((prev) => {
-      const next = fn(prev);
-      saveCards(next);
-      return next;
-    });
-  }, []);
+  // Ekrandaki liste hemen güncellenir; veritabanına yalnızca değişen kart yazılır
+  const addCard = (card) => {
+    setCards((cs) => [...cs, card]);
+    db.saveCard(card);
+  };
+  const updateCard = (card) => {
+    setCards((cs) => cs.map((c) => (c.id === card.id ? card : c)));
+    db.saveCard(card);
+  };
+  const deleteCard = (id) => {
+    setCards((cs) => cs.filter((c) => c.id !== id));
+    db.deleteCard(id);
+  };
 
-  const updateTopics = useCallback((fn) => {
-    setTopics((prev) => {
-      const next = fn(prev);
-      saveTopics(next);
-      return next;
-    });
-  }, []);
-
-  const addCard = (card) => update((cs) => [...cs, card]);
-  const updateCard = (card) => update((cs) => cs.map((c) => (c.id === card.id ? card : c)));
-  const deleteCard = (id) => update((cs) => cs.filter((c) => c.id !== id));
-
-  const addTopic = (name) =>
-    updateTopics((ts) =>
-      ts.some((t) => t.toLowerCase() === name.toLowerCase())
-        ? ts
-        : [...ts, name].sort((a, b) => a.localeCompare(b, 'tr'))
-    );
+  const addTopic = (name) => {
+    if (topics.some((t) => t.toLowerCase() === name.toLowerCase())) return;
+    setTopics((ts) => [...ts, name].sort((a, b) => a.localeCompare(b, 'tr')));
+    db.saveTopic(name);
+  };
   // Konu silinince kartlar silinmez, sadece konuları boşaltılır
   const removeTopic = (name) => {
-    updateTopics((ts) => ts.filter((t) => t !== name));
-    update((cs) => cs.map((c) => (c.topic === name ? { ...c, topic: null } : c)));
+    setTopics((ts) => ts.filter((t) => t !== name));
+    setCards((cs) => cs.map((c) => (c.topic === name ? { ...c, topic: null } : c)));
+    db.deleteTopic(name);
   };
 
   const restore = (data) => {
-    update(() => data.cards);
-    updateTopics(() => data.topics);
+    setCards(data.cards);
+    setTopics(data.topics);
+    db.replaceAll(data);
   };
 
   const topicProps = { topics, onAddTopic: addTopic, onRemoveTopic: removeTopic };
 
-  if (!cards || !fontsLoaded) {
+  if (!cards || !fontsLoaded || !ready) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator color={colors.foreground} />
@@ -128,9 +133,8 @@ export default function App() {
                 {cards.length} kelime · bugün {dueCount} tekrar
               </Text>
             </View>
-            <Button variant="outline" size="sm" onPress={() => setBackupOpen(true)} className="mb-0.5">
-              <HardDriveDownload size={15} color={colors.foreground} />
-              <Text>Yedek</Text>
+            <Button variant="outline" size="icon" onPress={() => setSettingsOpen(true)} className="mb-0.5" accessibilityLabel="Ayarlar">
+              <Settings size={19} color={colors.foreground} />
             </Button>
           </View>
 
@@ -142,9 +146,9 @@ export default function App() {
             {tab === 'vault' && <VaultScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
           </View>
 
-          <BackupSheet
-            visible={backupOpen}
-            onClose={() => setBackupOpen(false)}
+          <SettingsSheet
+            visible={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
             cards={cards}
             topics={topics}
             onRestore={restore}

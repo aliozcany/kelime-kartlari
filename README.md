@@ -35,7 +35,7 @@ Dizide, kitapta, haberde karşına çıkan İngilizce kelimeleri kaydettiğin ve
 
 **Kelime Haznem.** 5/5 tekrarı biten kelimeler günlük çalışmadan çıkıp buraya geçer. İstediğin zaman hepsiyle karışık bir test yapabilirsin.
 
-**Ayrıca:** Her yerden düzenleme (düzenlemek tekrar planını bozmaz) · tek dosyayla yedek ve geri yükleme · telefonun temasına uyan açık/koyu görünüm.
+**Ayrıca:** Her yerden düzenleme (düzenlemek tekrar planını bozmaz) · tek dosyayla yedek ve geri yükleme · Ayarlar'dan açık/koyu/sistem teması ve çalışılan dil seçimi · uzun listelerde sayfa sayfa yükleme.
 
 ## Tekrar nasıl çalışıyor?
 
@@ -88,14 +88,14 @@ npx eas-cli build -p android --profile apk
 
 Derleme Expo'nun sunucularında yapılır. Bitince verilen linki telefondan açıp APK'yı kur. Yeni sürümü eskisinin üstüne kurarsan kelimelerin silinmez.
 
-> Yeni bir native paket eklendiğinde (ör. `react-native-keyboard-controller`) telefondaki eski APK yeni kodla çalışmaz; yeniden derlemek gerekir.
+> Yeni bir native paket eklendiğinde (ör. `react-native-keyboard-controller`, `expo-sqlite`) telefondaki eski APK yeni kodla çalışmaz; yeniden derlemek gerekir.
 
 > **Windows'ta** PowerShell `npx` için "running scripts is disabled" hatası verirse, `npx` yerine `npx.cmd` yaz.
 
 ## Proje yapısı
 
 ```
-App.js                     Alt sekmeler, fontlar, veri yükleme/kaydetme, Yedek düğmesi
+App.js                     Alt sekmeler, fontlar, veri yükleme/kaydetme, Ayarlar düğmesi
 global.css                 Tema renkleri (açık / koyu)
 tailwind.config.js         Renk ve font tanımları
 src/
@@ -113,19 +113,21 @@ src/
 │   ├── CardForm.js        Ekleme / düzenleme formu
 │   ├── EditCardSheet.js   Düzenleme penceresi
 │   ├── CalendarView.js    Ay takvimi (+N gösterimi)
-│   ├── BackupSheet.js     Dosyaya yedekle / dosyadan geri yükle
+│   ├── SettingsSheet.js   Ayarlar: tema, çalışılan dil, yedek
+│   ├── BackupSection.js   Dosyaya yedekle / dosyadan geri yükle
 │   └── Sheet.js           Alttan açılan pencere
 ├── lib/                   cn() yardımcısı, NativeWind tanıtımları
 ├── srs.js                 Tekrar mantığı: bildim, bilemedim, test, hata oranı, ipuçları
 ├── dates.js               Tarih yardımcıları ve tekrar aralıkları
 ├── backup.js              Yedek oluşturma ve doğrulama
-├── storage.js             Telefonda kalıcı kayıt (AsyncStorage)
+├── settings.js            Tema ve dil ayarları (SettingsProvider)
+├── storage.js             Telefondaki SQLite veritabanı (okuma, tek kart yazma, ilk açılışta taşıma)
 └── theme.js               className kullanılamayan yerler için renkler
 ```
 
 ## Veri yapısı
 
-Her kart telefonda (AsyncStorage) şu şekilde saklanır. Yedek dosyası da aynı yapıdadır:
+Uygulama içinde ve yedek dosyasında her kart şu yapıdadır:
 
 ```js
 {
@@ -146,7 +148,18 @@ Her kart telefonda (AsyncStorage) şu şekilde saklanır. Yedek dosyası da ayn�
 }
 ```
 
-Tarihler yerel saatle `YYYY-MM-DD` metni olarak tutulur, böylece saat dilimi kaymaları olmaz. Hata oranı `reviews` ve `tests` kayıtlarından hesaplanır, ayrıca saklanmaz.
+Tarihler yerel saatle `YYYY-MM-DD` metni olarak tutulur, böylece saat dilimi kaymaları olmaz. Hata oranı `reviews` ve `tests` kayıtlarından hesaplanır, ayrıca saklanmaz. `en` alanı, Ayarlar'da seçilen dildeki kelimedir (adı eski sürümlerle uyum için kaldı).
+
+Telefonda veriler `kelime-kartlari.db` adlı bir SQLite dosyasında durur (sunucu yok, internet gerekmez):
+
+| Tablo | İçerik |
+| --- | --- |
+| `cards` | Kartın alanları; bilinmeyen/yeni alanlar `extra` sütununda JSON |
+| `answers` | Her cevap bir satır: `kind` = `review` (günlük tekrar) ya da `test` (Haznem) |
+| `topics` | Konu adları |
+| `meta` | Şema sürümü, eski kayıtların taşındığı zaman |
+
+Bir kart değişince sadece o kartın satırları yazılır. Eski sürümlerden (AsyncStorage) gelen veriler ilk açılışta bir kez SQLite'a taşınır; eski kayıt silinmez.
 
 ## Teknolojiler
 
@@ -155,6 +168,7 @@ Tarihler yerel saatle `YYYY-MM-DD` metni olarak tutulur, böylece saat dilimi ka
 - [Lucide](https://lucide.dev/) ikonlar, `expo-font` ile Google Fonts
 - `react-native-keyboard-controller`: klavye açıkken formun kayması
 - `expo-haptics`: cevap verince titreşim
-- `@react-native-async-storage/async-storage`: kalıcı kayıt
+- `expo-sqlite`: kelimelerin kalıcı kaydı
+- `@react-native-async-storage/async-storage`: küçük ayarlar (tema, dil) ve eski sürümden taşıma
 - `expo-file-system`, `expo-sharing`, `expo-document-picker`: yedek dosyası
 - [EAS Build](https://docs.expo.dev/build/introduction/): APK derleme

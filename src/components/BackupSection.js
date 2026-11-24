@@ -7,12 +7,12 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useColors } from '../theme';
 import { makeBackup, parseBackup } from '../backup';
 import { todayStr } from '../dates';
-import Sheet from './Sheet';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Text } from './ui/text';
 
-export default function BackupSheet({ visible, onClose, cards, topics, onRestore }) {
+// Ayarlar ekranındaki yedek bölümü: dışa aktar / geri yükle
+export default function BackupSection({ onDone, cards, topics, onRestore }) {
   const [text, setText] = useState('');
   const [pasteOpen, setPasteOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -51,7 +51,7 @@ export default function BackupSheet({ visible, onClose, cards, topics, onRestore
           onPress: () => {
             onRestore(data);
             after?.();
-            onClose();
+            onDone?.();
           },
         },
       ]
@@ -87,54 +87,52 @@ export default function BackupSheet({ visible, onClose, cards, topics, onRestore
   };
 
   return (
-    <Sheet visible={visible} title="Yedek" onClose={onClose}>
-      <View className="gap-4">
-        <View className="rounded-2xl border border-border bg-card p-4">
-          <Text variant="heading">Yedek al</Text>
-          <Text variant="muted" className="mt-1 leading-5">
-            {cards.length} kelime ve {topics.length} konu tek bir .json dosyası olarak kaydedilir. Açılan menüden Drive'a,
-            Dosyalar'a, e-postaya ya da WhatsApp'a gönderebilirsin.
-          </Text>
-          <Button className="mt-4" onPress={exportFile} disabled={busy}>
-            <Text>Yedek dosyasını kaydet</Text>
-          </Button>
-        </View>
-
-        <View className="rounded-2xl border border-border bg-card p-4">
-          <Text variant="heading">Geri yükle</Text>
-          <Text variant="muted" className="mt-1 leading-5">
-            Daha önce kaydettiğin yedek dosyasını seç. Mevcut kelimelerin yerine yüklenir.
-          </Text>
-          <Button variant="danger" className="mt-4" onPress={importFile}>
-            <Text>Yedek dosyası seç</Text>
-          </Button>
-
-          <Pressable onPress={() => setPasteOpen(!pasteOpen)} hitSlop={8} className="mt-4 flex-row items-center gap-1">
-            {pasteOpen ? (
-              <ChevronDown size={15} color={colors.mutedForeground} />
-            ) : (
-              <ChevronRight size={15} color={colors.mutedForeground} />
-            )}
-            <Text variant="label">Eski yöntem: metni yapıştır</Text>
-          </Pressable>
-          {pasteOpen ? (
-            <>
-              <Input
-                className="mt-3 max-h-[180px] bg-background text-[13px]"
-                value={text}
-                onChangeText={setText}
-                placeholder='{"app":"kelime-kartlari", ...}'
-                multiline
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-              <Button variant="danger" className="mt-3" onPress={restoreText} disabled={!text.trim()}>
-                <Text>Metinden geri yükle</Text>
-              </Button>
-            </>
-          ) : null}
-        </View>
+    <View className="gap-4">
+      <View className="rounded-2xl border border-border bg-card p-4">
+        <Text variant="heading">Yedek al</Text>
+        <Text variant="muted" className="mt-1 leading-5">
+          {cards.length} kelime ve {topics.length} konu tek bir .json dosyası olarak kaydedilir. Açılan menüden Drive'a,
+          Dosyalar'a, e-postaya ya da WhatsApp'a gönderebilirsin.
+        </Text>
+        <Button className="mt-4" onPress={exportFile} disabled={busy}>
+          <Text>Yedek dosyasını kaydet</Text>
+        </Button>
       </View>
-    </Sheet>
+
+      <View className="rounded-2xl border border-border bg-card p-4">
+        <Text variant="heading">Geri yükle</Text>
+        <Text variant="muted" className="mt-1 leading-5">
+          Daha önce kaydettiğin yedek dosyasını seç. Mevcut kelimelerin yerine yüklenir.
+        </Text>
+        <Button variant="danger" className="mt-4" onPress={importFile}>
+          <Text>Yedek dosyası seç</Text>
+        </Button>
+
+        <Pressable onPress={() => setPasteOpen(!pasteOpen)} hitSlop={8} className="mt-4 flex-row items-center gap-1">
+          {pasteOpen ? (
+            <ChevronDown size={15} color={colors.mutedForeground} />
+          ) : (
+            <ChevronRight size={15} color={colors.mutedForeground} />
+          )}
+          <Text variant="label">Eski yöntem: metni yapıştır</Text>
+        </Pressable>
+        {pasteOpen ? (
+          <>
+            <Input
+              className="mt-3 max-h-[180px] bg-background text-[13px]"
+              value={text}
+              onChangeText={setText}
+              placeholder='{"app":"kelime-kartlari", ...}'
+              multiline
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Button variant="danger" className="mt-3" onPress={restoreText} disabled={!text.trim()}>
+              <Text>Metinden geri yükle</Text>
+            </Button>
+          </>
+        ) : null}
+      </View>
+    </View>
   );
 }

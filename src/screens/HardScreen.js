@@ -7,6 +7,7 @@ import { useColors } from '../theme';
 import { cn } from '../lib/utils';
 import EditCardSheet from '../components/EditCardSheet';
 import { Button } from '../components/ui/button';
+import { PagedFooter, pagedListProps, usePaged } from '../lib/usePaged';
 import { Text } from '../components/ui/text';
 
 // En çok zorlanılan kelimeler: hata oranına göre sıralı bir çalışma listesi.
@@ -14,6 +15,7 @@ import { Text } from '../components/ui/text';
 export default function HardScreen({ cards, onUpdate, topics, onAddTopic, onRemoveTopic }) {
   const colors = useColors();
   const ranked = useMemo(() => hardestCards(cards), [cards]);
+  const paged = usePaged(ranked);
   const [hideTr, setHideTr] = useState(false);
   const [revealed, setRevealed] = useState({}); // anlamlar gizliyken tek tek açılanlar
   const [open, setOpen] = useState(null);
@@ -36,8 +38,10 @@ export default function HardScreen({ cards, onUpdate, topics, onAddTopic, onRemo
   return (
     <View className="flex-1">
       <FlatList
-        data={ranked}
+        data={paged.visible}
         keyExtractor={(r) => r.card.id}
+        {...pagedListProps(paged)}
+        ListFooterComponent={<PagedFooter paged={paged} />}
         contentContainerClassName="px-5 pb-8 pt-2"
         ListHeaderComponent={
           ranked.length ? (
