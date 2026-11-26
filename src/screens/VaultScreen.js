@@ -14,6 +14,8 @@ import { Button } from '../components/ui/button';
 import { Text } from '../components/ui/text';
 import { PagedFooter, pagedListProps, usePaged } from '../lib/usePaged';
 import { useSettings } from '../settings';
+import { t } from '../i18n';
+
 
 function shuffle(arr) {
   const a = [...arr];
@@ -83,12 +85,12 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
 
     const restartMissed = () => {
       Alert.alert(
-        'Tekrar planına al',
-        `${missed.length} kelime günlük çalışmaya geri dönecek ve 1. gün, 3. gün, 1. hafta… planı baştan başlayacak.`,
+        t('vault.restartTitle'),
+        t('vault.restartText', { n: missed.length }),
         [
-          { text: 'Vazgeç', style: 'cancel' },
+          { text: t('common.cancel'), style: 'cancel' },
           {
-            text: 'Planına al',
+            text: t('vault.restartOk'),
             onPress: () => {
               missed.forEach((c) => onUpdate(restartPlan(c, today)));
               exit();
@@ -109,9 +111,9 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
               {known}<Text className="font-serif text-[30px] text-muted-foreground">/{results.length}</Text>
             </Text>
             <Text variant="muted" className="mt-1 text-[15px]">
-              {missed.length === 0 ? 'Hepsini bildin.' : `${missed.length} kelimeyi bilemedin`}
+              {missed.length === 0 ? t('vault.allKnown') : t('vault.missedN', { n: missed.length })}
             </Text>
-            {missed.length > 0 ? <Text variant="overline" className="mt-6 self-start">Bilemediklerin</Text> : null}
+            {missed.length > 0 ? <Text variant="overline" className="mt-6 self-start">{t('vault.missedList')}</Text> : null}
           </View>
         }
         renderItem={({ item }) => <WordRow card={item} />}
@@ -120,11 +122,11 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
           <View className="mt-4 gap-2.5">
             {missed.length > 0 ? (
               <Button variant="dangerSoft" onPress={restartMissed}>
-                <Text>Bilemediklerimi tekrar planına al</Text>
+                <Text>{t('vault.restartMissed')}</Text>
               </Button>
             ) : null}
             <Button onPress={exit}>
-              <Text>Haznem'e dön</Text>
+              <Text>{t('vault.back')}</Text>
             </Button>
           </View>
         }
@@ -142,13 +144,13 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
           <View className="flex-row items-center justify-between">
             <Pressable onPress={exit} hitSlop={8} className="flex-row items-center gap-1">
               <X size={15} color={colors.mutedForeground} />
-              <Text variant="label">Testi bitir</Text>
+              <Text variant="label">{t('vault.endTest')}</Text>
             </Pressable>
             <View className="flex-row items-center gap-1">
               {flipped ? (
                 <Button variant="ghost" size="sm" className="-my-2" onPress={() => setEditing(true)}>
                   <Pencil size={14} color={colors.mutedForeground} />
-                  <Text className="font-sans-md text-[13px] text-muted-foreground">Düzenle</Text>
+                  <Text className="font-sans-md text-[13px] text-muted-foreground">{t('common.edit')}</Text>
                 </Button>
               ) : null}
               <Text variant="label">
@@ -159,7 +161,7 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
           <ProgressBar value={total ? done / total : 0} />
         </View>
 
-        <FlipCard card={card} anim={anim} onPress={flip} topRight="Haznem testi" />
+        <FlipCard card={card} anim={anim} onPress={flip} topRight={t('vault.test')} />
 
         <View className="mt-4 min-h-[56px] justify-center">
           {flipped ? <AnswerRow onAnswer={answer} /> : null}
@@ -193,18 +195,17 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
         <View className="mb-5 rounded-2xl border border-border bg-card p-5">
           <View className="flex-row items-end gap-3">
             <Text className="font-serif text-[52px] leading-[56px]">{mastered.length}</Text>
-            <Text className="mb-2 font-sans-md text-[15px]">kelime haznende</Text>
+            <Text className="mb-2 font-sans-md text-[15px]">{t('vault.countLabel')}</Text>
           </View>
           <Text variant="muted" className="mt-2 leading-5">
-            5/5 tekrarı biten kelimeler buraya gelir ve günlük çalışmada artık sorulmaz. İstediğin zaman kendini test
-            edebilirsin; test tekrar planını değiştirmez.
+            {t('vault.intro')}
           </Text>
           <Button className="mt-4" onPress={start} disabled={mastered.length === 0}>
-            <Text>Teste başla</Text>
+            <Text>{t('vault.start')}</Text>
           </Button>
         </View>
       }
-      ListEmptyComponent={<Text variant="muted" className="mt-6 text-center">Henüz 5/5 tamamlanan kelime yok.</Text>}
+      ListEmptyComponent={<Text variant="muted" className="mt-6 text-center">{t('vault.empty')}</Text>}
       renderItem={({ item }) => <WordRow card={item} />}
       ItemSeparatorComponent={() => <View className="h-px bg-border" />}
     />
@@ -219,7 +220,7 @@ function WordRow({ card }) {
         <Text variant="word">{card.en}</Text>
         <Text variant="muted" className="mt-0.5">{card.tr}</Text>
       </View>
-      {misses > 0 ? <Badge variant="danger">{`${misses} hata`}</Badge> : null}
+      {misses > 0 ? <Badge variant="danger">{t('common.misses', { n: misses })}</Badge> : null}
     </View>
   );
 }

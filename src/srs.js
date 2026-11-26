@@ -1,4 +1,5 @@
 import { INTERVALS, addDays, anchorOf, todayStr } from './dates';
+import { t } from './i18n';
 
 // Kart bilindiğinde bir sonraki tekrar aşamasına geçer.
 // Birkaç tekrar kaçırıldıysa, tarihi zaten geçmiş aşamalar atlanır;
@@ -60,9 +61,9 @@ export function hardestCards(cards) {
 // Çalışırken sırayla açılan ipuçları; kartta olmayanlar atlanır
 export function hintsOf(card) {
   return [
-    { key: 'example', label: 'Cümle', text: card.example },
-    { key: 'synonyms', label: 'Eş anlamlı', text: card.synonyms },
-    { key: 'antonyms', label: 'Zıt anlamlı', text: card.antonyms },
+    { key: 'example', label: t('hint.example'), text: card.example },
+    { key: 'synonyms', label: t('hint.synonyms'), text: card.synonyms },
+    { key: 'antonyms', label: t('hint.antonyms'), text: card.antonyms },
   ].filter((h) => h.text && h.text.trim());
 }
 

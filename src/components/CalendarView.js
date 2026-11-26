@@ -5,8 +5,7 @@ import { formatMonth, monthKey, toStr } from '../dates';
 import { useColors } from '../theme';
 import { cn } from '../lib/utils';
 import { Text } from './ui/text';
-
-const DAY_NAMES = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+import { t, weekdaysShort } from '../i18n';
 
 function shiftMonth(key, n) {
   const [y, m] = key.split('-').map(Number);
@@ -42,7 +41,7 @@ export default function CalendarView({ counts, selected, onSelect, today }) {
         </Pressable>
         <View className="items-center">
           <Text className="font-serif text-[19px]">{formatMonth(month)}</Text>
-          <Text variant="small">{monthTotal} kelime</Text>
+          <Text variant="small">{t('common.words', { n: monthTotal })}</Text>
         </View>
         <Pressable onPress={() => setMonth(shiftMonth(month, 1))} hitSlop={10} className="h-9 w-9 items-center justify-center rounded-full active:bg-muted">
           <ChevronRight size={20} color={colors.foreground} />
@@ -51,7 +50,7 @@ export default function CalendarView({ counts, selected, onSelect, today }) {
 
       {/* Yüzde genişlik (100/7 %) Android'de yuvarlanıp satırı 6 güne düşürüyordu; satırlar ayrı ayrı çizilir */}
       <View className="flex-row">
-        {DAY_NAMES.map((d) => (
+        {weekdaysShort().map((d) => (
           <View key={d} className="flex-1 py-1">
             <Text variant="small" className="text-center font-sans-md">{d}</Text>
           </View>

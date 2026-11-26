@@ -10,6 +10,8 @@ import { todayStr } from '../dates';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Text } from './ui/text';
+import { t } from '../i18n';
+
 
 // Ayarlar ekranındaki yedek bölümü: dışa aktar / geri yükle
 export default function BackupSection({ onDone, cards, topics, onRestore }) {
@@ -26,14 +28,14 @@ export default function BackupSection({ onDone, cards, topics, onRestore }) {
       if (file.exists) file.delete();
       file.create();
       file.write(makeBackup(cards, topics));
-      if (!(await Sharing.isAvailableAsync())) throw new Error('Bu cihazda paylaşım desteklenmiyor.');
+      if (!(await Sharing.isAvailableAsync())) throw new Error(t('backup.shareUnsupported'));
       await Sharing.shareAsync(file.uri, {
         mimeType: 'application/json',
-        dialogTitle: 'Yedeği kaydet',
+        dialogTitle: t('backup.saveDialog'),
         UTI: 'public.json',
       });
     } catch (e) {
-      Alert.alert('Yedek alınamadı', String(e?.message || e));
+      Alert.alert(t('backup.exportFailed'), String(e?.message || e));
     } finally {
       setBusy(false);
     }
@@ -41,12 +43,12 @@ export default function BackupSection({ onDone, cards, topics, onRestore }) {
 
   const confirmRestore = (data, after) => {
     Alert.alert(
-      'Yedeği geri yükle',
-      `Şu anki ${cards.length} kelime silinecek, yerine yedekteki ${data.cards.length} kelime yüklenecek.`,
+      t('backup.restoreTitle'),
+      t('backup.restoreText', { now: cards.length, next: data.cards.length }),
       [
-        { text: 'Vazgeç', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Geri yükle',
+          text: t('backup.restoreOk'),
           style: 'destructive',
           onPress: () => {
             onRestore(data);
@@ -68,13 +70,13 @@ export default function BackupSection({ onDone, cards, topics, onRestore }) {
       if (res.canceled || !res.assets?.length) return;
       content = await new File(res.assets[0].uri).text();
     } catch (e) {
-      Alert.alert('Dosya açılamadı', String(e?.message || e));
+      Alert.alert(t('backup.openFailed'), String(e?.message || e));
       return;
     }
     try {
       confirmRestore(parseBackup(content));
     } catch (e) {
-      Alert.alert('Yedek okunamadı', e.message);
+      Alert.alert(t('backup.readFailed'), e.message);
     }
   };
 
@@ -82,30 +84,29 @@ export default function BackupSection({ onDone, cards, topics, onRestore }) {
     try {
       confirmRestore(parseBackup(text), () => setText(''));
     } catch (e) {
-      Alert.alert('Yedek okunamadı', e.message);
+      Alert.alert(t('backup.readFailed'), e.message);
     }
   };
 
   return (
     <View className="gap-4">
       <View className="rounded-2xl border border-border bg-card p-4">
-        <Text variant="heading">Yedek al</Text>
+        <Text variant="heading">{t('backup.exportTitle')}</Text>
         <Text variant="muted" className="mt-1 leading-5">
-          {cards.length} kelime ve {topics.length} konu tek bir .json dosyası olarak kaydedilir. Açılan menüden Drive'a,
-          Dosyalar'a, e-postaya ya da WhatsApp'a gönderebilirsin.
+          {t('backup.exportText', { n: cards.length, topics: topics.length })}
         </Text>
         <Button className="mt-4" onPress={exportFile} disabled={busy}>
-          <Text>Yedek dosyasını kaydet</Text>
+          <Text>{t('backup.exportBtn')}</Text>
         </Button>
       </View>
 
       <View className="rounded-2xl border border-border bg-card p-4">
-        <Text variant="heading">Geri yükle</Text>
+        <Text variant="heading">{t('backup.importTitle')}</Text>
         <Text variant="muted" className="mt-1 leading-5">
-          Daha önce kaydettiğin yedek dosyasını seç. Mevcut kelimelerin yerine yüklenir.
+          {t('backup.importText')}
         </Text>
         <Button variant="danger" className="mt-4" onPress={importFile}>
-          <Text>Yedek dosyası seç</Text>
+          <Text>{t('backup.importBtn')}</Text>
         </Button>
 
         <Pressable onPress={() => setPasteOpen(!pasteOpen)} hitSlop={8} className="mt-4 flex-row items-center gap-1">
@@ -114,7 +115,7 @@ export default function BackupSection({ onDone, cards, topics, onRestore }) {
           ) : (
             <ChevronRight size={15} color={colors.mutedForeground} />
           )}
-          <Text variant="label">Eski yöntem: metni yapıştır</Text>
+          <Text variant="label">{t('backup.pasteToggle')}</Text>
         </Pressable>
         {pasteOpen ? (
           <>
@@ -128,7 +129,7 @@ export default function BackupSection({ onDone, cards, topics, onRestore }) {
               autoCorrect={false}
             />
             <Button variant="danger" className="mt-3" onPress={restoreText} disabled={!text.trim()}>
-              <Text>Metinden geri yükle</Text>
+              <Text>{t('backup.pasteBtn')}</Text>
             </Button>
           </>
         ) : null}

@@ -9,6 +9,8 @@ import EditCardSheet from '../components/EditCardSheet';
 import { Button } from '../components/ui/button';
 import { PagedFooter, pagedListProps, usePaged } from '../lib/usePaged';
 import { Text } from '../components/ui/text';
+import { t } from '../i18n';
+
 
 // En çok zorlanılan kelimeler: hata oranına göre sıralı bir çalışma listesi.
 // Burada cevap verilmez, tekrar planına dokunulmaz; sadece bakıp çalışmak için.
@@ -47,18 +49,17 @@ export default function HardScreen({ cards, onUpdate, topics, onAddTopic, onRemo
           ranked.length ? (
             <View className="mb-3">
               <Text variant="muted" className="leading-5">
-                Hata oranına göre sıralı: bilinemediği sayı ÷ toplam sorulduğu sayı. Burada cevap vermezsin, tekrar planı
-                değişmez.
+                {t('hard.intro')}
               </Text>
               <View className="mt-3 flex-row items-center justify-between">
-                <Text variant="label">{ranked.length} kelime</Text>
+                <Text variant="label">{t('common.words', { n: ranked.length })}</Text>
                 <Button variant="outline" size="sm" onPress={toggleHide}>
                   {hideTr ? (
                     <Eye size={15} color={colors.foreground} />
                   ) : (
                     <EyeOff size={15} color={colors.foreground} />
                   )}
-                  <Text>{hideTr ? 'Anlamları göster' : 'Anlamları gizle'}</Text>
+                  <Text>{hideTr ? t('hard.show') : t('hard.hide')}</Text>
                 </Button>
               </View>
             </View>
@@ -66,10 +67,9 @@ export default function HardScreen({ cards, onUpdate, topics, onAddTopic, onRemo
         }
         ListEmptyComponent={
           <View className="mt-16 items-center px-6">
-            <Text className="mb-2 text-center font-serif text-[26px] leading-8">Henüz zorlandığın kelime yok.</Text>
+            <Text className="mb-2 text-center font-serif text-[26px] leading-8">{t('hard.emptyTitle')}</Text>
             <Text variant="muted" className="text-center leading-5">
-              Çalışırken ya da Haznem testinde “Bilemedim” dediğin kelimeler burada, en çok zorlandığından başlayarak
-              sıralanır.
+              {t('hard.emptyText')}
             </Text>
           </View>
         }
@@ -111,7 +111,7 @@ function HardRow({ card, rate, misses, attempts, last, rank, hidden, open, onPre
         <View className="flex-1">
           <Text variant="word">{card.en}</Text>
           {hidden ? (
-            <Text variant="muted" className="mt-0.5 tracking-widest">• • •  <Text variant="small">göster</Text></Text>
+            <Text variant="muted" className="mt-0.5 tracking-widest">• • •  <Text variant="small">{t('hard.reveal')}</Text></Text>
           ) : (
             <Text variant="muted" className="mt-0.5 text-[15px]">{card.tr}</Text>
           )}
@@ -129,14 +129,14 @@ function HardRow({ card, rate, misses, attempts, last, rank, hidden, open, onPre
       {open && !hidden ? (
         <View className="ml-10 mt-3 gap-1.5">
           {card.example ? <Text className="font-serif-i text-[16px] leading-[22px]">“{card.example}”</Text> : null}
-          {card.synonyms ? <Detail label="Eş" text={card.synonyms} /> : null}
-          {card.antonyms ? <Detail label="Zıt" text={card.antonyms} /> : null}
+          {card.synonyms ? <Detail label={t('common.syn')} text={card.synonyms} /> : null}
+          {card.antonyms ? <Detail label={t('common.ant')} text={card.antonyms} /> : null}
           <Text variant="small" className="mt-1">
-            Son bilinemediği gün {formatShort(last)}  ·  {Math.min(card.stage, INTERVALS.length)}/{INTERVALS.length} tekrar
+            {t('hard.lastMiss', { date: formatShort(last) })}  ·  {t('common.reviews', { done: Math.min(card.stage, INTERVALS.length), total: INTERVALS.length })}
           </Text>
           <Button variant="outline" size="sm" className="mt-2 self-start" onPress={onEdit}>
             <Pencil size={14} color={colors.foreground} />
-            <Text>Düzenle</Text>
+            <Text>{t('common.edit')}</Text>
           </Button>
         </View>
       ) : null}

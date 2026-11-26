@@ -26,15 +26,18 @@ import HardScreen from './src/screens/HardScreen';
 import VaultScreen from './src/screens/VaultScreen';
 import SettingsSheet from './src/components/SettingsSheet';
 import { SettingsProvider, useSettings } from './src/settings';
+import { t } from './src/i18n';
+import { scheduleReminders } from './src/reminder';
 import { Button } from './src/components/ui/button';
 import { Text } from './src/components/ui/text';
 
+// Etiket ve başlık arayüz dilinden gelir: tabs.<key>, title.<key>
 const TABS = [
-  { key: 'list', label: 'Kelimelerim', title: 'Kelimelerim', Icon: Library },
-  { key: 'vault', label: 'Haznem', title: 'Kelime Haznem', Icon: Trophy },
-  { key: 'study', label: 'Çalış', title: 'Bugünkü tekrar', Icon: BookOpen },
-  { key: 'add', label: 'Ekle', title: 'Yeni kelime', Icon: Plus },
-  { key: 'hard', label: 'Zorlandıklarım', title: 'Zorlandıklarım', Icon: Target },
+  { key: 'list', Icon: Library },
+  { key: 'vault', Icon: Trophy },
+  { key: 'study', Icon: BookOpen },
+  { key: 'add', Icon: Plus },
+  { key: 'hard', Icon: Target },
 ];
 
 export default function App() {
@@ -46,7 +49,7 @@ export default function App() {
 }
 
 function Main() {
-  const { ready } = useSettings();
+  const { ready, reminder, uiLang } = useSettings();
   const scheme = useColorScheme();
   const colors = useColors();
   const [fontsLoaded] = useFonts({
@@ -62,7 +65,7 @@ function Main() {
   const [topics, setTopics] = useState([]);
   const [tab, setTab] = useState('study');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [, setTick] = useState(0); // gün değişince ekranı tazelemek için
+  const [tick, setTick] = useState(0); // gün değişince ekranı tazelemek için
 
   useEffect(() => {
     db.loadAll().then(({ cards: cs, topics: ts }) => {
@@ -72,6 +75,13 @@ function Main() {
     const sub = AppState.addEventListener('change', (s) => s === 'active' && setTick((t) => t + 1));
     return () => sub.remove();
   }, []);
+
+  // Hatırlatma bildirimleri kartlara göre yeniden kurulur (art arda değişikliklerde bir kez)
+  useEffect(() => {
+    if (!cards || !ready) return;
+    const id = setTimeout(() => scheduleReminders(cards, reminder), 1500);
+    return () => clearTimeout(id);
+  }, [cards, ready, reminder, uiLang, tick]);
 
   // Ekrandaki liste hemen güncellenir; veritabanına yalnızca değişen kart yazılır
   const addCard = (card) => {
@@ -128,12 +138,12 @@ function Main() {
           <View className="flex-row items-end px-5 pb-3 pt-3">
             <View className="flex-1">
               <Text variant="overline">{formatDay(today)}</Text>
-              <Text variant="title" className="mt-1">{current.title}</Text>
+              <Text variant="title" className="mt-1">{t(`title.${current.key}`)}</Text>
               <Text variant="muted" className="mt-0.5">
-                {cards.length} kelime · bugün {dueCount} tekrar
+                {t('header.summary', { n: cards.length, due: dueCount })}
               </Text>
             </View>
-            <Button variant="outline" size="icon" onPress={() => setSettingsOpen(true)} className="mb-0.5" accessibilityLabel="Ayarlar">
+            <Button variant="outline" size="icon" onPress={() => setSettingsOpen(true)} className="mb-0.5" accessibilityLabel={t('header.settings')}>
               <Settings size={19} color={colors.foreground} />
             </Button>
           </View>
@@ -155,7 +165,7 @@ function Main() {
           />
 
           <View className="flex-row border-t border-border bg-background px-1 pb-1 pt-2">
-            {TABS.map(({ key, label, Icon }) => {
+            {TABS.map(({ key, Icon }) => {
               const active = tab === key;
               return (
                 <Pressable key={key} onPress={() => setTab(key)} className="flex-1 items-center gap-1 py-1" role="tab">
@@ -172,7 +182,7 @@ function Main() {
                     adjustsFontSizeToFit
                     minimumFontScale={0.8}
                     className={cn('text-[10px] tracking-tight', active ? 'font-sans-sb text-foreground' : 'font-sans-md text-muted-foreground')}>
-                    {label}
+                    {t(`tabs.${key}`)}
                   </Text>
                 </Pressable>
               );

@@ -20,6 +20,8 @@
   --danger-soft: 245 226 218;
   --highlight: 246 220 110;
   --highlight-foreground: 74 60 10;
+  --hint: 246 233 182;
+  --hint-foreground: 74 60 10;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,5 +41,7 @@
     --danger-soft: 62 35 28;
     --highlight: 222 193 82;
     --highlight-foreground: 34 28 6;
+    --hint: 58 51 26;
+    --hint-foreground: 242 224 160;
   }
 }

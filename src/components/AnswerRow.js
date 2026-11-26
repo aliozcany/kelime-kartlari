@@ -5,6 +5,8 @@ import { Check, X } from 'lucide-react-native';
 import { useColors } from '../theme';
 import { Button } from './ui/button';
 import { Text } from './ui/text';
+import { t } from '../i18n';
+
 
 // Bilemedim / Bildim butonları (günlük çalışma ve Haznem testi)
 export default function AnswerRow({ onAnswer }) {
@@ -19,11 +21,11 @@ export default function AnswerRow({ onAnswer }) {
     <View className="flex-row gap-3">
       <Button variant="dangerSoft" size="lg" className="flex-1" onPress={() => press(false)}>
         <X size={20} color={colors.danger} strokeWidth={2.4} />
-        <Text>Bilemedim</Text>
+        <Text>{t('answer.no')}</Text>
       </Button>
       <Button variant="accent" size="lg" className="flex-1" onPress={() => press(true)}>
         <Check size={20} color={colors.primaryForeground} strokeWidth={2.4} />
-        <Text>Bildim</Text>
+        <Text>{t('answer.yes')}</Text>
       </Button>
     </View>
   );

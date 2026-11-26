@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Text as RNText } from 'react-native';
 import { cva } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
+import { collator } from '../../i18n';
 
 // React Native Reusables'taki Text deseni: Button gibi kapsayıcılar,
 // içlerindeki yazının stilini bu bağlam üzerinden verir.
@@ -26,7 +27,7 @@ const textVariants = cva('font-sans text-base text-foreground', {
 
 export function Text({ className, variant, children, ...props }) {
   const ctx = React.useContext(TextClassContext);
-  const content = variant === 'overline' && typeof children === 'string' ? children.toLocaleUpperCase('tr') : children;
+  const content = variant === 'overline' && typeof children === 'string' ? children.toLocaleUpperCase(collator()) : children;
   return (
     <RNText className={cn(textVariants({ variant }), ctx, className)} {...props}>
       {content}

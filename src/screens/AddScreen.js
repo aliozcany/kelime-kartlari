@@ -4,6 +4,8 @@ import { todayStr, addDays, INTERVALS, formatShort } from '../dates';
 import { newId } from '../storage';
 import CardForm from '../components/CardForm';
 import { Text } from '../components/ui/text';
+import { t } from '../i18n';
+
 
 export default function AddScreen({ cards, topics, onAdd, onAddTopic, onRemoveTopic, todayCount }) {
   const today = todayStr();
@@ -33,7 +35,7 @@ export default function AddScreen({ cards, topics, onAdd, onAddTopic, onRemoveTo
       />
 
       <Text variant="small" className="mt-5 text-center leading-[18px]">
-        Bugün {todayCount} kelime ekledin. Bugünküler şu günlerde sorulacak:{'\n'}
+        {t('add.footer', { n: todayCount })}{'\n'}
         {INTERVALS.map((d) => formatShort(addDays(today, d))).join('  ·  ')}
       </Text>
     </KeyboardAwareScrollView>

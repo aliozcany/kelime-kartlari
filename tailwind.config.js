@@ -18,6 +18,7 @@ module.exports = {
         accent: { DEFAULT: c('accent'), soft: c('accent-soft') },
         danger: { DEFAULT: c('danger'), soft: c('danger-soft') },
         highlight: { DEFAULT: c('highlight'), foreground: c('highlight-foreground') },
+        hint: { DEFAULT: c('hint'), foreground: c('hint-foreground') },
       },
       // Android'de özel fontlarda fontWeight çalışmaz; her kalınlık ayrı bir aile.
       fontFamily: {

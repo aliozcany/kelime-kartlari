@@ -1,10 +1,11 @@
 // Tarihler "YYYY-MM-DD" string olarak tutulur (yerel saat). Böylece saat dilimi kaymaları olmaz.
 
-export const INTERVALS = [1, 3, 7, 14, 30]; // eklendikten sonraki günler
-export const STAGE_LABELS = ['1. gün', '3. gün', '1. hafta', '2. hafta', '1. ay'];
+import { getUiLang, months, t, weekdays } from './i18n';
 
-const AYLAR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-const GUNLER = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+export const INTERVALS = [1, 3, 7, 14, 30]; // eklendikten sonraki günler
+export const stageLabel = (stage) => t(`stage.${stage}`);
+
+const isEn = () => getUiLang() === 'en';
 
 export function toStr(d) {
   const y = d.getFullYear();
@@ -51,28 +52,32 @@ export function weekStart(s) {
 
 export const monthKey = (s) => s.slice(0, 7);
 
+// Türkçe "26 Kasım Perşembe", İngilizce "Thursday, 26 November"
 export function formatDay(s) {
   const d = parse(s);
-  return `${d.getDate()} ${AYLAR[d.getMonth()]} ${GUNLER[d.getDay()]}`;
+  const day = `${d.getDate()} ${months()[d.getMonth()]}`;
+  return isEn() ? `${weekdays()[d.getDay()]}, ${day}` : `${day} ${weekdays()[d.getDay()]}`;
 }
 
 export function formatShort(s) {
   const d = parse(s);
-  return `${d.getDate()} ${AYLAR[d.getMonth()]}`;
+  const m = months()[d.getMonth()];
+  return `${d.getDate()} ${isEn() ? m.slice(0, 3) : m}`;
 }
 
 export function formatWeek(startStr) {
   const a = parse(startStr);
   const b = parse(addDays(startStr, 6));
+  const M = months();
   if (a.getMonth() === b.getMonth()) {
-    return `${a.getDate()} – ${b.getDate()} ${AYLAR[a.getMonth()]}`;
+    return `${a.getDate()} – ${b.getDate()} ${M[a.getMonth()]}`;
   }
-  return `${a.getDate()} ${AYLAR[a.getMonth()]} – ${b.getDate()} ${AYLAR[b.getMonth()]}`;
+  return `${a.getDate()} ${M[a.getMonth()]} – ${b.getDate()} ${M[b.getMonth()]}`;
 }
 
 export function formatMonth(key) {
   const [y, m] = key.split('-').map(Number);
-  return `${AYLAR[m - 1]} ${y}`;
+  return `${months()[m - 1]} ${y}`;
 }
 
 // Tüm tekrarları bitmiş kart: günlük çalışmaya bir daha gelmez, Kelime Haznem'de durur

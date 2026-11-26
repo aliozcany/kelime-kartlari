@@ -1,3 +1,5 @@
+import { t } from './i18n';
+
 // Yedek bir JSON dosyası olarak kaydedilir; geri yüklerken dosya seçilir (ya da metin yapıştırılır).
 // version 2: kartlarda types, synonyms, antonyms, tests alanları da olabilir (hepsi isteğe bağlı).
 
@@ -25,11 +27,11 @@ export function parseBackup(text) {
   try {
     data = JSON.parse(text.trim());
   } catch (e) {
-    throw new Error('Metin geçerli bir yedek değil. Yedeğin tamamını kopyaladığından emin ol.');
+    throw new Error(t('backup.errJson'));
   }
   const cards = Array.isArray(data) ? data : data?.cards;
-  if (!Array.isArray(cards)) throw new Error('Yedekte kart listesi bulunamadı.');
-  if (!cards.every(isCard)) throw new Error('Yedekteki kartlardan bazıları bozuk.');
+  if (!Array.isArray(cards)) throw new Error(t('backup.errNoCards'));
+  if (!cards.every(isCard)) throw new Error(t('backup.errBroken'));
 
   // Kartlarda geçen ama konu listesinde olmayan konuları da ekle
   const topics = new Set(Array.isArray(data.topics) ? data.topics.filter((t) => typeof t === 'string') : []);

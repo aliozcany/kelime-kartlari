@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
 import { Pencil } from 'lucide-react-native';
-import { isDue, todayStr, STAGE_LABELS } from '../dates';
+import { isDue, todayStr, stageLabel } from '../dates';
+import { t } from '../i18n';
+
 import { markKnown, markUnknown } from '../srs';
 import { useColors } from '../theme';
 import FlipCard from '../components/FlipCard';
@@ -63,12 +65,12 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
     return (
       <View className="flex-1 items-center justify-center px-10">
         <Text className="mb-2 text-center font-serif text-[30px] leading-9">
-          {doneCount > 0 ? 'Bugünlük bitti.' : 'Bugün tekrar yok.'}
+          {doneCount > 0 ? t('study.doneTitle') : t('study.emptyTitle')}
         </Text>
         <Text variant="muted" className="text-center text-[15px] leading-[22px]">
           {doneCount > 0
-            ? `${doneCount} kelimeyi tekrar ettin. Yarın görüşürüz.`
-            : 'Yeni kelime ekle; eklediğin kelimeler ertesi gün buraya gelir.'}
+            ? t('study.doneText', { n: doneCount })
+            : t('study.emptyText')}
         </Text>
       </View>
     );
@@ -81,19 +83,19 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
       <View className="mb-4 gap-2.5">
         <View className="flex-row items-center justify-between">
           <Text variant="label">
-            <Text className="font-sans-sb text-[13px] text-foreground">{queue.length}</Text> kaldı
+            <Text className="font-sans-sb text-[13px] text-foreground">{queue.length}</Text> {t('study.left')}
           </Text>
           {flipped ? (
             <Button variant="ghost" size="sm" className="-my-2 -mr-2" onPress={() => setEditing(true)}>
               <Pencil size={14} color={colors.mutedForeground} />
-              <Text className="font-sans-md text-[13px] text-muted-foreground">Düzenle</Text>
+              <Text className="font-sans-md text-[13px] text-muted-foreground">{t('common.edit')}</Text>
             </Button>
           ) : null}
         </View>
         <ProgressBar value={total ? doneCount / total : 0} />
       </View>
 
-      <FlipCard card={card} anim={anim} onPress={flip} topRight={`${STAGE_LABELS[card.stage]} tekrarı`} />
+      <FlipCard card={card} anim={anim} onPress={flip} topRight={t('study.stageReview', { stage: stageLabel(card.stage) })} />
 
       <View className="mt-4 min-h-[56px] justify-center">
         {flipped ? <AnswerRow onAnswer={answer} /> : null}

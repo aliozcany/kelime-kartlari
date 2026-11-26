@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { Button } from '../components/ui/button';
 import { Text } from '../components/ui/text';
+import { t } from '../i18n';
+
 
 export const PAGE_SIZE = 30;
 
@@ -26,10 +28,10 @@ export function PagedFooter({ paged, children }) {
   return (
     <View className="mt-4 items-center gap-2">
       <Text variant="small">
-        {paged.visible.length} / {paged.total} gösteriliyor
+        {t('paged.showing', { shown: paged.visible.length, total: paged.total })}
       </Text>
       <Button variant="outline" size="sm" onPress={paged.loadMore}>
-        <Text>Daha fazla göster</Text>
+        <Text>{t('paged.more')}</Text>
       </Button>
     </View>
   );

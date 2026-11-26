@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Alert, Pressable, SectionList, TextInput, View } from 'react-native';
-import { Search, X } from 'lucide-react-native';
+import { Search, Volume2, X } from 'lucide-react-native';
+import { speak } from '../speech';
 import { formatDay, formatMonth, formatShort, formatWeek, monthKey, nextDue, todayStr, weekStart, INTERVALS } from '../dates';
 import { missCount } from '../srs';
 import { useColors } from '../theme';
@@ -12,13 +13,10 @@ import { Badge } from '../components/ui/badge';
 import { PagedFooter, pagedListProps, usePaged } from '../lib/usePaged';
 import { Button } from '../components/ui/button';
 import { Text } from '../components/ui/text';
+import { collator, t } from '../i18n';
+import { useSettings } from '../settings';
 
-const MODES = [
-  { key: 'day', label: 'Gün' },
-  { key: 'week', label: 'Hafta' },
-  { key: 'month', label: 'Ay' },
-  { key: 'cal', label: 'Takvim' },
-];
+const MODES = ['day', 'week', 'month', 'cal'];
 
 // Büyük/küçük harf ve Türkçe karakter farkını gözetmeden arama
 const norm = (s) =>
@@ -49,14 +47,15 @@ function groupTitle(mode, key) {
 
 function status(card, today) {
   const n = nextDue(card);
-  if (n === null) return { text: 'Haznede', className: 'text-accent' };
-  if (n < today) return { text: 'Gecikti', className: 'text-danger' };
-  if (n === today) return { text: 'Bugün', className: 'text-foreground' };
+  if (n === null) return { text: t('list.inVault'), className: 'text-accent' };
+  if (n < today) return { text: t('list.late'), className: 'text-danger' };
+  if (n === today) return { text: t('list.today'), className: 'text-foreground' };
   return { text: formatShort(n), className: 'text-muted-foreground' };
 }
 
 export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTopic, onRemoveTopic }) {
   const colors = useColors();
+  const { uiLang, lang } = useSettings();
   const [mode, setMode] = useState('day');
   const [open, setOpen] = useState(null);
   const [editingId, setEditingId] = useState(null);
@@ -97,7 +96,7 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
   const sections = useMemo(() => {
     const data = paged.visible;
     if (!data.length) return [];
-    if (q) return [{ key: 'search', title: 'Arama sonuçları', data, total: flat.length }];
+    if (q) return [{ key: 'search', title: t('list.searchResults'), data, total: flat.length }];
     if (mode === 'cal') return [{ key: calDay, title: formatDay(calDay), data, total: flat.length }];
     const map = new Map();
     data.forEach((c) => {
@@ -106,18 +105,18 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
       map.get(k).push(c);
     });
     return [...map.entries()].map(([k, d]) => ({ key: k, title: groupTitle(mode, k), data: d, total: groupTotals[k] }));
-  }, [paged.visible, flat.length, groupTotals, mode, q, calDay]);
+  }, [paged.visible, flat.length, groupTotals, mode, q, calDay, uiLang]);
 
   const confirmDelete = (card) => {
-    Alert.alert('Kartı sil', `“${card.en}” silinsin mi?`, [
-      { text: 'Vazgeç', style: 'cancel' },
-      { text: 'Sil', style: 'destructive', onPress: () => onDelete(card.id) },
+    Alert.alert(t('list.deleteTitle'), t('list.deleteQ', { word: card.en }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: () => onDelete(card.id) },
     ]);
   };
 
-  let emptyText = 'Henüz kelime eklemedin.';
-  if (q) emptyText = `“${query.trim()}” bulunamadı.`;
-  else if (mode === 'cal') emptyText = calDay ? 'Bu gün kelime eklenmemiş.' : 'Kelimelerini görmek için bir güne dokun.';
+  let emptyText = t('list.empty');
+  if (q) emptyText = t('list.notFound', { q: query.trim() });
+  else if (mode === 'cal') emptyText = calDay ? t('list.calEmptyDay') : t('list.calPick');
 
   return (
     <View className="flex-1">
@@ -127,7 +126,7 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
           className="flex-1 font-sans text-base text-foreground"
           value={query}
           onChangeText={setQuery}
-          placeholder="Kelime, anlam ya da cümle ara"
+          placeholder={t('list.search')}
           placeholderTextColor={colors.placeholder}
           autoCapitalize="none"
           autoCorrect={false}
@@ -143,15 +142,15 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
       {!q ? (
         <View className="mx-5 mt-3 flex-row rounded-xl bg-muted p-1">
           {MODES.map((m) => {
-            const active = mode === m.key;
+            const active = mode === m;
             return (
               <Pressable
-                key={m.key}
-                onPress={() => setMode(m.key)}
+                key={m}
+                onPress={() => setMode(m)}
                 className={cn('h-9 flex-1 items-center justify-center rounded-lg', active && 'bg-card')}
               >
                 <Text className={cn('text-sm', active ? 'font-sans-sb text-foreground' : 'font-sans-md text-muted-foreground')}>
-                  {m.label}
+                  {t(`list.mode.${m}`)}
                 </Text>
               </Pressable>
             );
@@ -174,7 +173,7 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
         renderSectionHeader={({ section }) => (
           <View className="mb-1 mt-5 flex-row items-baseline justify-between">
             <Text variant="overline" className="text-foreground">{section.title}</Text>
-            <Text variant="small">{section.total ?? section.data.length} kelime</Text>
+            <Text variant="small">{t('common.words', { n: section.total ?? section.data.length })}</Text>
           </View>
         )}
         ItemSeparatorComponent={() => <View className="h-px bg-border" />}
@@ -205,30 +204,33 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
                 </View>
                 <View className="items-end gap-1 pl-3 pt-1">
                   <Text className={cn('font-sans-sb text-xs', s.className)}>{s.text}</Text>
-                  {misses > 0 ? <Badge variant="danger">{`${misses} hata`}</Badge> : null}
+                  {misses > 0 ? <Badge variant="danger">{t('common.misses', { n: misses })}</Badge> : null}
                 </View>
               </View>
 
               {isOpen ? (
                 <View className="mt-3 gap-1.5">
                   {item.example ? <Text className="font-serif-i text-[16px] leading-[22px]">“{item.example}”</Text> : null}
-                  {item.synonyms ? <Rel label="Eş" text={item.synonyms} /> : null}
-                  {item.antonyms ? <Rel label="Zıt" text={item.antonyms} /> : null}
+                  {item.synonyms ? <Rel label={t('common.syn')} text={item.synonyms} /> : null}
+                  {item.antonyms ? <Rel label={t('common.ant')} text={item.antonyms} /> : null}
                   {item.reference ? <Text variant="muted">{item.reference}</Text> : null}
                   <View className="mt-1.5 flex-row items-center gap-1.5">
                     {INTERVALS.map((_, i) => (
                       <View key={i} className={cn('h-1.5 w-6 rounded-full', i < item.stage ? 'bg-accent' : 'bg-muted')} />
                     ))}
                     <Text variant="small" className="ml-1.5">
-                      {Math.min(item.stage, INTERVALS.length)}/{INTERVALS.length} tekrar
+                      {t('common.reviews', { done: Math.min(item.stage, INTERVALS.length), total: INTERVALS.length })}
                     </Text>
                   </View>
                   <View className="mt-2 flex-row gap-2">
+                    <Button variant="outline" size="sm" onPress={() => speak(item.en, lang)} accessibilityLabel={t('common.listen')}>
+                      <Volume2 size={15} color={colors.foreground} />
+                    </Button>
                     <Button variant="outline" size="sm" className="flex-1" onPress={() => setEditingId(item.id)}>
-                      <Text>Düzenle</Text>
+                      <Text>{t('common.edit')}</Text>
                     </Button>
                     <Button variant="dangerSoft" size="sm" className="flex-1" onPress={() => confirmDelete(item)}>
-                      <Text>Sil</Text>
+                      <Text>{t('common.delete')}</Text>
                     </Button>
                   </View>
                 </View>

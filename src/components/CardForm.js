@@ -9,6 +9,8 @@ import { Button } from './ui/button';
 import { Chip } from './ui/chip';
 import { Input } from './ui/input';
 import { Text } from './ui/text';
+import { t } from '../i18n';
+
 
 // Kelime türleri (isteğe bağlı, birden fazla seçilebilir)
 export const WORD_TYPES = [
@@ -82,7 +84,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
 
   const dup = findDuplicate(cards, en, initial?.id);
   const canSave = en.trim() && tr.trim();
-  const label = dup ? (isEdit ? 'Yine de kaydet' : 'Yine de ekle') : isEdit ? 'Kaydet' : 'Kartı ekle';
+  const label = dup ? (isEdit ? t('form.saveAnyway') : t('form.addAnyway')) : isEdit ? t('form.save') : t('form.add');
   const filledDetails = [example, synonyms, antonyms, reference].filter((s) => s.trim()).length;
 
   const submit = () => {
@@ -98,7 +100,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
       antonyms: antonyms.trim(),
     });
     if (!isEdit) {
-      setMsg(`“${en.trim()}” eklendi`);
+      setMsg(t('form.added', { word: en.trim() }));
       setEn('');
       setTr('');
       setExample('');
@@ -122,19 +124,19 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
     setAddingTopic(false);
   };
 
-  const confirmRemoveTopic = (t) => {
-    const used = cards.filter((c) => c.topic === t).length;
+  const confirmRemoveTopic = (name) => {
+    const used = cards.filter((c) => c.topic === name).length;
     Alert.alert(
-      'Konuyu sil',
-      `“${t}” konusu silinsin mi?` + (used ? `\n${used} kartın konusu kaldırılacak, kartlar silinmez.` : ''),
+      t('form.removeTopic'),
+      t('form.removeTopicQ', { topic: name }) + (used ? `\n${t('form.removeTopicUsed', { n: used })}` : ''),
       [
-        { text: 'Vazgeç', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Sil',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => {
-            onRemoveTopic(t);
-            if (topic === t) setTopic(null);
+            onRemoveTopic(name);
+            if (topic === name) setTopic(null);
           },
         },
       ]
@@ -162,7 +164,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
             className="font-serif text-[19px]"
           />
         </Field>
-        <Field label="Türkçe" className={wide ? 'flex-1' : ''}>
+        <Field label={t('common.meaning')} className={wide ? 'flex-1' : ''}>
           <Input
             ref={trRef}
             value={tr}
@@ -178,35 +180,35 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
         <View className="-mt-1 flex-row items-center gap-2 rounded-xl bg-danger-soft px-3 py-2.5">
           <TriangleAlert size={16} color={colors.danger} />
           <Text className="flex-1 text-sm text-danger">
-            Bu kelime zaten var: <Text className="font-sans-sb text-sm text-danger">{dup.en}</Text> — {dup.tr}
+            {t('form.duplicate')} <Text className="font-sans-sb text-sm text-danger">{dup.en}</Text> — {dup.tr}
           </Text>
         </View>
       ) : null}
 
-      <Field label="Tür">
+      <Field label={t('form.type')}>
         <View className="flex-row flex-wrap gap-2">
-          {WORD_TYPES.map((t) => (
-            <Chip key={t.key} label={t.label} active={types.includes(t.key)} onPress={() => toggleType(t.key)} />
+          {WORD_TYPES.map((w) => (
+            <Chip key={w.key} label={w.label} active={types.includes(w.key)} onPress={() => toggleType(w.key)} />
           ))}
         </View>
       </Field>
 
-      <Field label="Konu" hint={topics.length ? 'uzun bas: sil' : null}>
+      <Field label={t('form.topic')} hint={topics.length ? t('form.topicHint') : null}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" className="-mx-5" contentContainerClassName="gap-2 px-5">
-          {topics.map((t) => (
+          {topics.map((name) => (
             <Chip
-              key={t}
-              label={t}
-              active={topic === t}
-              onPress={() => setTopic(topic === t ? null : t)}
-              onLongPress={() => confirmRemoveTopic(t)}
+              key={name}
+              label={name}
+              active={topic === name}
+              onPress={() => setTopic(topic === name ? null : name)}
+              onLongPress={() => confirmRemoveTopic(name)}
             />
           ))}
           {addingTopic ? (
             <Input
               value={newTopic}
               onChangeText={setNewTopic}
-              placeholder="Yeni konu"
+              placeholder={t('form.newTopic')}
               autoFocus
               returnKeyType="done"
               onSubmitEditing={commitTopic}
@@ -214,7 +216,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
               className="h-9 min-w-[130px] rounded-full border-foreground py-0 text-sm"
             />
           ) : (
-            <Chip dashed label="+ Konu" onPress={() => setAddingTopic(true)} />
+            <Chip dashed label={t('form.addTopic')} onPress={() => setAddingTopic(true)} />
           )}
         </ScrollView>
       </Field>
@@ -222,9 +224,9 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
       <View className="rounded-2xl border border-border bg-card/60">
         <Pressable onPress={toggleDetails} className="flex-row items-center justify-between px-4 py-3 active:opacity-70">
           <View className="flex-row items-baseline gap-2">
-            <Text className="font-sans-sb text-[15px]">Ayrıntılar</Text>
+            <Text className="font-sans-sb text-[15px]">{t('form.details')}</Text>
             <Text variant="small">
-              {filledDetails ? `${filledDetails} alan dolu` : 'cümle, eş / zıt anlam, kaynak'}
+              {filledDetails ? t('form.detailsFilled', { n: filledDetails }) : t('form.detailsHint')}
             </Text>
           </View>
           <View style={{ transform: [{ rotate: detailsOpen ? '180deg' : '0deg' }] }}>
@@ -234,7 +236,7 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
 
         {detailsOpen ? (
           <View className="gap-3 border-t border-border px-4 pb-4 pt-3">
-            <Field label="Örnek cümle" hint="ilk ipucu">
+            <Field label={t('form.example')} hint={t('form.exampleHint')}>
               <Input
                 value={example}
                 onChangeText={setExample}
@@ -244,15 +246,15 @@ export default function CardForm({ mode = 'add', initial, cards, topics, onAddTo
               />
             </Field>
             <View className="flex-row gap-3">
-              <Field label="Eş anlamlı" className="flex-1">
+              <Field label={t('form.synonyms')} className="flex-1">
                 <Input value={synonyms} onChangeText={setSynonyms} placeholder={sample.syn} autoCapitalize="none" />
               </Field>
-              <Field label="Zıt anlamlı" className="flex-1">
+              <Field label={t('form.antonyms')} className="flex-1">
                 <Input value={antonyms} onChangeText={setAntonyms} placeholder={sample.ant} autoCapitalize="none" />
               </Field>
             </View>
-            <Field label="Nerede gördün">
-              <Input value={reference} onChangeText={setReference} placeholder="Friends 3. sezon, BBC haberi" returnKeyType="done" />
+            <Field label={t('form.reference')}>
+              <Input value={reference} onChangeText={setReference} placeholder={t('form.referencePh')} returnKeyType="done" />
             </Field>
           </View>
         ) : null}
