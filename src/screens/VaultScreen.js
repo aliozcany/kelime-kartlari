@@ -161,7 +161,7 @@ export default function VaultScreen({ cards, onUpdate, topics, onAddTopic, onRem
           <ProgressBar value={total ? done / total : 0} />
         </View>
 
-        <FlipCard card={card} anim={anim} onPress={flip} topRight={t('vault.test')} />
+        <FlipCard card={card} anim={anim} flipped={flipped} onPress={flip} topRight={t('vault.test')} />
 
         <View className="mt-4 min-h-[56px] justify-center">
           {flipped ? <AnswerRow onAnswer={answer} /> : null}

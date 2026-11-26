@@ -30,6 +30,10 @@ const tr = {
   'common.ant': 'Zıt',
   'common.meaning': 'Türkçe',
   'common.listen': 'Dinle',
+  'speech.noVoiceTitle': ({ lang }) => `${lang} ses yüklü değil`,
+  'speech.noVoiceText': ({ lang }) =>
+    `Telefonunda ${lang} okuma sesi yok, bu yüzden kelime yanlış aksanla okunurdu. Yüklemek için: Ayarlar → Sistem → Diller → Metin okuma → Google Konuşma Hizmetleri → ses verilerini yükle → ${lang}.`,
+  'speech.ok': 'Tamam',
 
   'answer.no': 'Bilemedim',
   'answer.yes': 'Bildim',
@@ -207,6 +211,10 @@ const en = {
   'common.ant': 'Ant',
   'common.meaning': 'Meaning',
   'common.listen': 'Listen',
+  'speech.noVoiceTitle': ({ lang }) => `No ${lang} voice installed`,
+  'speech.noVoiceText': ({ lang }) =>
+    `Your phone has no ${lang} text-to-speech voice, so the word would be read with the wrong accent. To install one: Settings → System → Languages → Text-to-speech → Speech Services by Google → Install voice data → ${lang}.`,
+  'speech.ok': 'OK',
 
   'answer.no': "Didn't know",
   'answer.yes': 'Knew it',

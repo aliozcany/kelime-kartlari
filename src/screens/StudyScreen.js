@@ -95,7 +95,7 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
         <ProgressBar value={total ? doneCount / total : 0} />
       </View>
 
-      <FlipCard card={card} anim={anim} onPress={flip} topRight={t('study.stageReview', { stage: stageLabel(card.stage) })} />
+      <FlipCard card={card} anim={anim} flipped={flipped} onPress={flip} topRight={t('study.stageReview', { stage: stageLabel(card.stage) })} />
 
       <View className="mt-4 min-h-[56px] justify-center">
         {flipped ? <AnswerRow onAnswer={answer} /> : null}

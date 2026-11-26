@@ -54,8 +54,10 @@ function SpeakButton({ text, lang, size = 20, className }) {
 }
 
 // Önü çalışılan dilde, arkası Türkçe ve ayrıntılar olan çevrilebilir kart.
-// anim: 0 → ön yüz, 1 → arka yüz (sahibi bileşen yönetir)
-export default function FlipCard({ card, anim, onPress, topRight }) {
+// anim: 0 → ön yüz, 1 → arka yüz (sahibi bileşen yönetir). flipped: arka yüz görünüyor mu.
+// İki yüz üst üste durur ve arka yüz üstte çizilir; görünmeyen yüz dokunuşları almasın diye
+// pointerEvents kapatılır (yoksa öndeki hoparlöre basınca arkadaki cümle okunuyordu).
+export default function FlipCard({ card, anim, flipped, onPress, topRight }) {
   const frontRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRot = anim.interpolate({ inputRange: [0, 1], outputRange: ['180deg', '360deg'] });
   const misses = missCount(card);
@@ -63,13 +65,13 @@ export default function FlipCard({ card, anim, onPress, topRight }) {
 
   // Yeni kart gelince (ayar açıksa) kelime okunur; ekrandan çıkınca okuma kesilir
   useEffect(() => {
-    if (autoSpeak) speak(card.en, lang);
+    if (autoSpeak) speak(card.en, lang, { auto: true });
   }, [card.id, autoSpeak]);
   useEffect(() => stopSpeaking, []);
 
   return (
     <Pressable onPress={onPress} className="max-h-[440px] flex-1">
-      <Animated.View style={[styles.face, { transform: [{ perspective: 1200 }, { rotateY: frontRot }] }]}>
+      <Animated.View pointerEvents={flipped ? 'none' : 'auto'} style={[styles.face, { transform: [{ perspective: 1200 }, { rotateY: frontRot }] }]}>
         <View className="flex-1 overflow-hidden rounded-3xl border border-border bg-card">
           <CardTop label={lang.label} right={topRight} />
           <View className="flex-1 items-center justify-center px-6">
@@ -82,7 +84,7 @@ export default function FlipCard({ card, anim, onPress, topRight }) {
         </View>
       </Animated.View>
 
-      <Animated.View style={[styles.face, { transform: [{ perspective: 1200 }, { rotateY: backRot }] }]}>
+      <Animated.View pointerEvents={flipped ? 'auto' : 'none'} style={[styles.face, { transform: [{ perspective: 1200 }, { rotateY: backRot }] }]}>
         <View className="flex-1 overflow-hidden rounded-3xl border border-border bg-card">
           <CardTop label={t('common.meaning')} right={card.en} />
           <ScrollView className="flex-1" contentContainerClassName="flex-grow items-center justify-center px-6 py-4" showsVerticalScrollIndicator={false}>
