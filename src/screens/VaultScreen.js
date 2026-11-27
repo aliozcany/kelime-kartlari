@@ -15,16 +15,8 @@ import { Text } from '../components/ui/text';
 import { PagedFooter, pagedListProps, usePaged } from '../lib/usePaged';
 import { useSettings } from '../settings';
 import { t } from '../i18n';
+import { shuffle } from '../lib/utils';
 
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 // Kelime Haznem: 5/5 tekrarı bitmiş kelimeler. Günlük çalışmaya gelmezler;
 // kullanıcı istediğinde buradan kendini test eder. Test, tekrar planını değiştirmez.

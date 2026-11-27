@@ -13,7 +13,7 @@ import { InstrumentSans_700Bold } from '@expo-google-fonts/instrument-sans/700Bo
 import { Newsreader_400Regular_Italic } from '@expo-google-fonts/newsreader/400Regular_Italic';
 import { Newsreader_500Medium } from '@expo-google-fonts/newsreader/500Medium';
 import { Newsreader_600SemiBold } from '@expo-google-fonts/newsreader/600SemiBold';
-import { BookOpen, Library, Plus, Settings, Target, Trophy } from 'lucide-react-native';
+import { BookOpen, Flame, Library, Plus, Settings, Target, Trophy } from 'lucide-react-native';
 
 import { useColors } from './src/theme';
 import { cn } from './src/lib/utils';
@@ -25,6 +25,8 @@ import ListScreen from './src/screens/ListScreen';
 import HardScreen from './src/screens/HardScreen';
 import VaultScreen from './src/screens/VaultScreen';
 import SettingsSheet from './src/components/SettingsSheet';
+import StatsSheet, { GoalBar } from './src/components/StatsSheet';
+import { currentStreak, dailyActivity } from './src/stats';
 import { SettingsProvider, useSettings } from './src/settings';
 import { t } from './src/i18n';
 import { scheduleReminders } from './src/reminder';
@@ -49,7 +51,7 @@ export default function App() {
 }
 
 function Main() {
-  const { ready, reminder, uiLang } = useSettings();
+  const { ready, reminder, uiLang, dailyGoal } = useSettings();
   const scheme = useColorScheme();
   const colors = useColors();
   const [fontsLoaded] = useFonts({
@@ -65,6 +67,7 @@ function Main() {
   const [topics, setTopics] = useState([]);
   const [tab, setTab] = useState('study');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   const [tick, setTick] = useState(0); // gün değişince ekranı tazelemek için
 
   useEffect(() => {
@@ -129,6 +132,9 @@ function Main() {
   const dueCount = cards.filter((c) => isDue(c, today)).length;
   const todayCount = cards.filter((c) => c.createdAt === today).length;
   const current = TABS.find((t) => t.key === tab);
+  const activity = dailyActivity(cards);
+  const streak = currentStreak(activity, today);
+  const activeToday = activity.has(today);
 
   return (
     <SafeAreaProvider>
@@ -143,10 +149,23 @@ function Main() {
                 {t('header.summary', { n: cards.length, due: dueCount })}
               </Text>
             </View>
-            <Button variant="outline" size="icon" onPress={() => setSettingsOpen(true)} className="mb-0.5" accessibilityLabel={t('header.settings')}>
-              <Settings size={19} color={colors.foreground} />
-            </Button>
+            <View className="mb-0.5 flex-row gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onPress={() => setStatsOpen(true)}
+                className="h-10 gap-1.5 rounded-full px-3"
+                accessibilityLabel={t('stats.open')}
+              >
+                <Flame size={18} color={streak && activeToday ? colors.highlightStrong : colors.mutedForeground} fill={streak && activeToday ? colors.highlightStrong : 'none'} />
+                <Text className="font-sans-sb text-[15px]" style={{ fontVariant: ['tabular-nums'] }}>{streak}</Text>
+              </Button>
+              <Button variant="outline" size="icon" onPress={() => setSettingsOpen(true)} accessibilityLabel={t('header.settings')}>
+                <Settings size={19} color={colors.foreground} />
+              </Button>
+            </View>
           </View>
+          {dailyGoal ? <GoalBar added={todayCount} goal={dailyGoal} className="mx-5 mb-3" /> : null}
 
           <View className="flex-1">
             {tab === 'study' && <StudyScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
@@ -155,6 +174,8 @@ function Main() {
             {tab === 'hard' && <HardScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
             {tab === 'vault' && <VaultScreen cards={cards} onUpdate={updateCard} {...topicProps} />}
           </View>
+
+          <StatsSheet visible={statsOpen} onClose={() => setStatsOpen(false)} cards={cards} />
 
           <SettingsSheet
             visible={settingsOpen}

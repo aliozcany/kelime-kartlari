@@ -28,6 +28,7 @@ const DEFAULTS = {
   language: 'en',
   uiLang: null, // null → ilk açılışta cihaz dilinden seçilir
   autoSpeak: false,
+  dailyGoal: 0, // günde eklenecek yeni kelime hedefi; 0 → kapalı
   reminder: { enabled: false, hour: 20, minute: 0 },
 };
 

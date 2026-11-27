@@ -147,7 +147,7 @@ function HardRow({ card, rate, misses, attempts, last, rank, hidden, open, onPre
 function Detail({ label, text }) {
   return (
     <View className="flex-row items-baseline gap-2">
-      <Text variant="overline" className="w-7 text-[10px]">{label}</Text>
+      <Text variant="overline" numberOfLines={1} className="min-w-[36px] text-[10px]">{label}</Text>
       <Text className="flex-1 font-sans-md text-[15px]">{text}</Text>
     </View>
   );

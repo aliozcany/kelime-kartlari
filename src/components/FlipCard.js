@@ -31,7 +31,7 @@ function CardTop({ label, right }) {
 function Rel({ label, text }) {
   return (
     <View className="mt-2 flex-row items-baseline justify-center gap-2 px-2">
-      <Text variant="overline" className="text-[10px]">{label}</Text>
+      <Text variant="overline" numberOfLines={1} className="shrink-0 text-[10px]">{label}</Text>
       <Text className="shrink font-sans-md text-[15px]">{text}</Text>
     </View>
   );

@@ -29,7 +29,9 @@ export function Text({ className, variant, children, ...props }) {
   const ctx = React.useContext(TextClassContext);
   const content = variant === 'overline' && typeof children === 'string' ? children.toLocaleUpperCase(collator()) : children;
   return (
-    <RNText className={cn(textVariants({ variant }), ctx, className)} {...props}>
+    // Android'in varsayılan "highQuality" satır kırma ölçümü, dar kutularda son kelimeyi
+    // alt satıra atıp kesebiliyor ("27 Kas" → "27", "ANT" → "AN/T"); "simple" bunu önler.
+    <RNText textBreakStrategy="simple" className={cn(textVariants({ variant }), ctx, className)} {...props}>
       {content}
     </RNText>
   );

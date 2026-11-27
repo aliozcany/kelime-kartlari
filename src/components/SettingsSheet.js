@@ -13,6 +13,7 @@ import { Chip } from './ui/chip';
 import { Text } from './ui/text';
 
 const THEME_ICONS = { system: Monitor, light: Sun, dark: Moon };
+const GOALS = [0, 3, 5, 10, 15, 20];
 const STEP = 15; // hatırlatma saati 15 dakikalık adımlarla değişir
 
 function Section({ title, hint, children }) {
@@ -71,7 +72,7 @@ const pad = (n) => String(n).padStart(2, '0');
 
 export default function SettingsSheet({ visible, onClose, cards, topics, onRestore }) {
   const colors = useColors();
-  const { theme, language, uiLang, autoSpeak, reminder, lang, set } = useSettings();
+  const { theme, language, uiLang, autoSpeak, reminder, dailyGoal, lang, set } = useSettings();
   const [denied, setDenied] = useState(false);
 
   const toggleReminder = async (on) => {
@@ -108,6 +109,20 @@ export default function SettingsSheet({ visible, onClose, cards, topics, onResto
           <View className="flex-row flex-wrap gap-2">
             {LANGUAGES.map((l) => (
               <Chip key={l.key} label={t(`lang.${l.key}`)} active={language === l.key} onPress={() => set({ language: l.key })} />
+            ))}
+          </View>
+        </Section>
+
+        <Section title={t('settings.goal')} hint={t('settings.goalHint')}>
+          <View className="flex-row flex-wrap gap-2">
+            {GOALS.map((g) => (
+              <Chip
+                key={g}
+                label={g ? String(g) : t('settings.goalOff')}
+                active={(dailyGoal || 0) === g}
+                onPress={() => set({ dailyGoal: g })}
+                className="min-w-[48px] items-center"
+              />
             ))}
           </View>
         </Section>

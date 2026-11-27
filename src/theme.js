@@ -16,6 +16,7 @@ export const COLORS = {
     accent: '#2E5E4A',
     danger: '#B2452C',
     highlightForeground: '#4A3C0A',
+    highlightStrong: '#D9822B',
   },
   dark: {
     background: '#161513',
@@ -30,6 +31,7 @@ export const COLORS = {
     accent: '#7CB898',
     danger: '#E87C62',
     highlightForeground: '#221C06',
+    highlightStrong: '#F0A04B',
   },
 };
 

@@ -6,6 +6,7 @@ import { t } from '../i18n';
 
 import { markKnown, markUnknown } from '../srs';
 import { useColors } from '../theme';
+import { shuffle } from '../lib/utils';
 import FlipCard from '../components/FlipCard';
 import HintPanel from '../components/HintPanel';
 import AnswerRow from '../components/AnswerRow';
@@ -26,8 +27,9 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
   const today = todayStr();
   const dueIds = useMemo(() => cards.filter((c) => isDue(c, today)).map((c) => c.id), [cards, today]);
 
-  // Oturum kuyruğu: cevaplanan kart (bilinse de bilinmese de) bugünlük çıkar
-  const [queue, setQueue] = useState(dueIds);
+  // Oturum kuyruğu: cevaplanan kart (bilinse de bilinmese de) bugünlük çıkar.
+  // Sıra her oturumda karıştırılır; kelimeler sırayla ezberlenmesin.
+  const [queue, setQueue] = useState(() => shuffle(dueIds));
   // Bugün tekrar edilen kart sayısı kayıtlardan hesaplanır; sekme değişince ya da uygulama kapanınca sıfırlanmaz
   const doneCount = useMemo(
     () => cards.filter((c) => (c.reviews || []).some((r) => r.date === today)).length,
@@ -39,7 +41,7 @@ export default function StudyScreen({ cards, onUpdate, topics, onAddTopic, onRem
 
   // Yeni kart eklendiğinde ya da gün değiştiğinde kuyruğu tazele (oturum ortasında değilse)
   useEffect(() => {
-    setQueue((q) => (q.length === 0 ? dueIds : q.filter((id) => cards.some((c) => c.id === id))));
+    setQueue((q) => (q.length === 0 ? shuffle(dueIds) : q.filter((id) => cards.some((c) => c.id === id))));
   }, [dueIds.join(',')]);
 
   const card = cards.find((c) => c.id === queue[0]);

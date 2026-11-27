@@ -202,8 +202,8 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
                     </View>
                   ) : null}
                 </View>
-                <View className="items-end gap-1 pl-3 pt-1">
-                  <Text className={cn('font-sans-sb text-xs', s.className)}>{s.text}</Text>
+                <View className="shrink-0 items-end gap-1 pl-3 pt-1">
+                  <Text numberOfLines={1} className={cn('font-sans-sb text-xs', s.className)}>{s.text}</Text>
                   {misses > 0 ? <Badge variant="danger">{t('common.misses', { n: misses })}</Badge> : null}
                 </View>
               </View>
@@ -256,7 +256,7 @@ export default function ListScreen({ cards, topics, onUpdate, onDelete, onAddTop
 function Rel({ label, text }) {
   return (
     <View className="flex-row items-baseline gap-2">
-      <Text variant="overline" className="w-7 text-[10px]">{label}</Text>
+      <Text variant="overline" numberOfLines={1} className="min-w-[36px] text-[10px]">{label}</Text>
       <Text className="flex-1 font-sans-md text-[15px]">{text}</Text>
     </View>
   );
